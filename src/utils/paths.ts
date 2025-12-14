@@ -15,5 +15,10 @@ export const PATH = {
 
   PAGE: {
     DASHBOARD: '/',
+    APARTMENTS: '/apartments',
+    ROOMS: '/rooms',
+    TENANTS: '/tenants',
+    INVOICES: '/invoices',
+    REQUEST: '/requests',
   },
 };

@@ -24,6 +24,8 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { NavMainButton } from './nav-main-button';
+import { PATH } from '@/utils/paths';
+import { Link } from 'react-router';
 
 // This is sample data.
 const data = {
@@ -35,7 +37,7 @@ const data = {
   navOverview: [
     {
       title: 'Thống kê',
-      url: '#',
+      url: PATH.PAGE.DASHBOARD,
       icon: LayoutDashboard,
     },
   ],
@@ -48,7 +50,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: '#',
+          url: PATH.PAGE.APARTMENTS,
         },
         {
           title: 'Thêm mới',
@@ -64,7 +66,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: '#',
+          url: PATH.PAGE.ROOMS,
         },
         {
           title: 'Thêm mới',
@@ -80,7 +82,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: '#',
+          url: PATH.PAGE.TENANTS,
         },
         {
           title: 'Thêm mới',
@@ -96,7 +98,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: '#',
+          url: PATH.PAGE.INVOICES,
         },
         {
           title: 'Thêm mới',
@@ -112,7 +114,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: '#',
+          url: PATH.PAGE.REQUEST,
         },
         {
           title: 'Thêm mới',
@@ -130,7 +132,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link to={PATH.PAGE.DASHBOARD}>
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <GalleryVerticalEnd className="size-4" />
                 </div>
@@ -138,7 +140,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="font-medium">Mini Apartment</span>
                   <span className="">v1.0.0</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
