@@ -1,6 +1,4 @@
-// Components
 import { DataTableDefault, type DataTableDefaultQuery } from '@/components/DataTableDefault';
-import { SectionCards } from '@/components/section-cards';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -14,47 +12,17 @@ import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { IconDotsVertical } from '@tabler/icons-react';
 import type { ColumnDef, useReactTable } from '@tanstack/react-table';
 
-const data: Payment[] = [
-  {
-    id: 'm5gr84i9',
-    amount: 316,
-    status: 'success',
-    email: 'ken99@example.com',
-  },
-  {
-    id: '3u1reuv4',
-    amount: 242,
-    status: 'success',
-    email: 'Abe45@example.com',
-  },
-  {
-    id: 'derv1ws0',
-    amount: 837,
-    status: 'processing',
-    email: 'Monserrat44@example.com',
-  },
-  {
-    id: '5kma53ae',
-    amount: 874,
-    status: 'success',
-    email: 'Silas22@example.com',
-  },
-  {
-    id: 'bhqecj4p',
-    amount: 721,
-    status: 'failed',
-    email: 'carmella@example.com',
-  },
-];
-
-export type Payment = {
+export type Tenant = {
   id: string;
-  amount: number;
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  email: string;
+  fullName: string;
+  address: string;
+  phoneNumber: string;
+  personalIdentificationNumber: number;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+const data: Tenant[] = [];
+
+export const columns: ColumnDef<Tenant>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -85,29 +53,26 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'status',
-    header: 'Trạng thái',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('status')}</div>,
+    accessorKey: 'fullName',
+    header: 'Họ & Tên',
+    cell: ({ row }) => <div className="capitalize">{row.getValue('fullName')}</div>,
   },
   {
-    accessorKey: 'email',
-    header: 'Email',
-    cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
+    accessorKey: 'personalIdentificationNumber',
+    header: 'Mã số CCCD',
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue('personalIdentificationNumber')}</div>
+    ),
   },
   {
-    accessorKey: 'amount',
-    header: () => <div className="text-right">Tổng cộng</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
+    accessorKey: 'phoneNumber',
+    header: 'Số điện thoại',
+    cell: ({ row }) => <div className="capitalize">{row.getValue('phoneNumber')}</div>,
+  },
+  {
+    accessorKey: 'address',
+    header: 'Quê quán',
+    cell: ({ row }) => <div className="capitalize">{row.getValue('address')}</div>,
   },
   {
     id: 'actions',
@@ -141,7 +106,7 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Payment>>) => {
+const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Tenant>>) => {
   const selected = table.getSelectedRowModel().rows;
 
   return (
@@ -161,9 +126,9 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Payment>>) =>
   );
 };
 
-const DashboardPage = () => {
-  const handleRowClick = (payment: Payment) => {
-    console.log(`Clicked payment: `, payment);
+const TenantPage = () => {
+  const handleRowClick = (tenant: Tenant) => {
+    console.log(`Clicked tenant: `, tenant);
   };
 
   const handleQueryChange = (query: DataTableDefaultQuery) => {
@@ -173,8 +138,6 @@ const DashboardPage = () => {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <SectionCards />
-
         <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
           <TabsContent
             value="outline"
@@ -185,8 +148,8 @@ const DashboardPage = () => {
               columns={columns}
               totalCount={55}
               onRowClick={handleRowClick}
-              getRowId={(payment, index) => payment.id || `row-${index}`}
-              // loading={true}
+              getRowId={(tenant, index) => tenant.id || `row-${index}`}
+              loading={true}
               renderToolbarRight={RenderToolbarRight}
               onQueryChange={handleQueryChange}
             />
@@ -197,4 +160,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default TenantPage;

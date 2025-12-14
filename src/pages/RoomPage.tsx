@@ -1,6 +1,9 @@
+// Libs
+import { IconDotsVertical } from '@tabler/icons-react';
+import type { ColumnDef, useReactTable } from '@tanstack/react-table';
+
 // Components
 import { DataTableDefault, type DataTableDefaultQuery } from '@/components/DataTableDefault';
-import { SectionCards } from '@/components/section-cards';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -11,50 +14,56 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { IconDotsVertical } from '@tabler/icons-react';
-import type { ColumnDef, useReactTable } from '@tanstack/react-table';
 
-const data: Payment[] = [
+export type Room = {
+  id: string;
+  code: string;
+  name: string;
+  apartmentId: string;
+  numberOfTenant: number;
+  previousMeterNumber: number;
+  currentMeterNumber: number;
+  previousWaterNumber: number;
+  currentWaterNumber: number;
+};
+
+const data: Room[] = [
   {
-    id: 'm5gr84i9',
-    amount: 316,
-    status: 'success',
-    email: 'ken99@example.com',
+    id: '1',
+    code: '201',
+    name: 'Phòng 201',
+    apartmentId: '1',
+    numberOfTenant: 2,
+    previousMeterNumber: 295,
+    currentMeterNumber: 525,
+    previousWaterNumber: 56,
+    currentWaterNumber: 63,
   },
   {
-    id: '3u1reuv4',
-    amount: 242,
-    status: 'success',
-    email: 'Abe45@example.com',
+    id: '2',
+    code: '202',
+    name: 'Phòng 202',
+    apartmentId: '1',
+    numberOfTenant: 2,
+    previousMeterNumber: 1254,
+    currentMeterNumber: 1442,
+    previousWaterNumber: 123,
+    currentWaterNumber: 135,
   },
   {
-    id: 'derv1ws0',
-    amount: 837,
-    status: 'processing',
-    email: 'Monserrat44@example.com',
-  },
-  {
-    id: '5kma53ae',
-    amount: 874,
-    status: 'success',
-    email: 'Silas22@example.com',
-  },
-  {
-    id: 'bhqecj4p',
-    amount: 721,
-    status: 'failed',
-    email: 'carmella@example.com',
+    id: '1',
+    code: '203',
+    name: 'Phòng 203',
+    apartmentId: '1',
+    numberOfTenant: 2,
+    previousMeterNumber: 245,
+    currentMeterNumber: 455,
+    previousWaterNumber: 34,
+    currentWaterNumber: 46,
   },
 ];
 
-export type Payment = {
-  id: string;
-  amount: number;
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  email: string;
-};
-
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Room>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -85,28 +94,52 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'status',
-    header: 'Trạng thái',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('status')}</div>,
+    accessorKey: 'code',
+    header: 'Code',
+    cell: ({ row }) => <div className="capitalize">{row.getValue('code')}</div>,
+    size: 80,
   },
   {
-    accessorKey: 'email',
-    header: 'Email',
-    cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
+    accessorKey: 'name',
+    header: 'Tên phòng',
+    cell: ({ row }) => <div className="capitalize">{row.getValue('name')}</div>,
   },
   {
-    accessorKey: 'amount',
-    header: () => <div className="text-right">Tổng cộng</div>,
+    accessorKey: 'numberOfTenant',
+    header: () => <div className="text-right">Số người ở</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'));
+      return <div className="text-right">{row.getValue('numberOfTenant')}</div>;
+    },
+    size: 150,
+  },
+  {
+    accessorKey: 'totalElectric',
+    header: () => <div className="text-right">Tổng số điện sử dụng (kWh)</div>,
+    accessorFn: (row) => {
+      const previous = row.previousMeterNumber;
+      const current = row.currentMeterNumber;
 
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(amount);
+      return current - previous;
+    },
+    cell: ({ getValue }) => {
+      const formattedElectric = getValue<number>().toLocaleString('vi-VN');
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return <div className="text-right font-semibold">{`${formattedElectric} kWh`}</div>;
+    },
+  },
+  {
+    accessorKey: 'totalWater',
+    header: () => <div className="text-right">Tổng số nước sử dụng (m³)</div>,
+    accessorFn: (row) => {
+      const previous = row.previousWaterNumber;
+      const current = row.currentWaterNumber;
+
+      return current - previous;
+    },
+    cell: ({ getValue }) => {
+      const formattedWater = getValue<number>().toLocaleString('vi-VN');
+
+      return <div className="text-right font-semibold">{`${formattedWater} m³`}</div>;
     },
   },
   {
@@ -141,7 +174,7 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Payment>>) => {
+const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
   const selected = table.getSelectedRowModel().rows;
 
   return (
@@ -161,9 +194,9 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Payment>>) =>
   );
 };
 
-const DashboardPage = () => {
-  const handleRowClick = (payment: Payment) => {
-    console.log(`Clicked payment: `, payment);
+const RoomPage = () => {
+  const handleRowClick = (room: Room) => {
+    console.log(`Clicked room: `, room);
   };
 
   const handleQueryChange = (query: DataTableDefaultQuery) => {
@@ -173,8 +206,6 @@ const DashboardPage = () => {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <SectionCards />
-
         <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
           <TabsContent
             value="outline"
@@ -185,7 +216,7 @@ const DashboardPage = () => {
               columns={columns}
               totalCount={55}
               onRowClick={handleRowClick}
-              getRowId={(payment, index) => payment.id || `row-${index}`}
+              getRowId={(room, index) => room.id || `row-${index}`}
               // loading={true}
               renderToolbarRight={RenderToolbarRight}
               onQueryChange={handleQueryChange}
@@ -197,4 +228,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default RoomPage;

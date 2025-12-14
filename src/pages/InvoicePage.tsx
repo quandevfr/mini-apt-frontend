@@ -1,6 +1,14 @@
+// Libs
+import {
+  IconAlertTriangleFilled,
+  IconCircleCheckFilled,
+  IconDotsVertical,
+  IconExclamationCircleFilled,
+} from '@tabler/icons-react';
+import type { ColumnDef, useReactTable } from '@tanstack/react-table';
+
 // Components
 import { DataTableDefault, type DataTableDefaultQuery } from '@/components/DataTableDefault';
-import { SectionCards } from '@/components/section-cards';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -11,50 +19,41 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { IconDotsVertical } from '@tabler/icons-react';
-import type { ColumnDef, useReactTable } from '@tanstack/react-table';
+import { Badge } from '@/components/ui/badge';
 
-const data: Payment[] = [
+export type Invoice = {
+  id: string;
+  code: string;
+  tenantId: string;
+  price: number;
+  status: 'paid' | 'unpaid' | 'late';
+};
+
+const data: Invoice[] = [
   {
-    id: 'm5gr84i9',
-    amount: 316,
-    status: 'success',
-    email: 'ken99@example.com',
+    id: '1',
+    code: '1234',
+    tenantId: '0001',
+    price: 5234000,
+    status: 'paid',
   },
   {
-    id: '3u1reuv4',
-    amount: 242,
-    status: 'success',
-    email: 'Abe45@example.com',
+    id: '2',
+    code: '1235',
+    tenantId: '0002',
+    price: 5034000,
+    status: 'unpaid',
   },
   {
-    id: 'derv1ws0',
-    amount: 837,
-    status: 'processing',
-    email: 'Monserrat44@example.com',
-  },
-  {
-    id: '5kma53ae',
-    amount: 874,
-    status: 'success',
-    email: 'Silas22@example.com',
-  },
-  {
-    id: 'bhqecj4p',
-    amount: 721,
-    status: 'failed',
-    email: 'carmella@example.com',
+    id: '3',
+    code: '1236',
+    tenantId: '0003',
+    price: 5128000,
+    status: 'late',
   },
 ];
 
-export type Payment = {
-  id: string;
-  amount: number;
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  email: string;
-};
-
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Invoice>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -85,29 +84,50 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: 'code',
+    header: 'Code',
+    cell: ({ row }) => <div className="capitalize">{row.getValue('code')}</div>,
+    size: 80,
+  },
+  {
+    accessorKey: 'tenantId',
+    header: 'Người thuê',
+    cell: ({ row }) => <div className="capitalize">{row.getValue('tenantId')}</div>,
+  },
+  {
+    accessorKey: 'price',
+    header: () => <div className="text-right">Tổng tiền (₫)</div>,
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue('price'));
+
+      const formatted = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+      }).format(price);
+
+      return <div className="text-right">{formatted}</div>;
+    },
+    size: 150,
+  },
+  {
     accessorKey: 'status',
     header: 'Trạng thái',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('status')}</div>,
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email',
-    cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
-  },
-  {
-    accessorKey: 'amount',
-    header: () => <div className="text-right">Tổng cộng</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
+    cell: ({ row }) => (
+      <Badge variant={'outline'} className="text-muted-foreground px-1.5 py-1 capitalize">
+        {row.original.status === 'paid' ? (
+          <IconCircleCheckFilled className="text-green-500 dark:text-green-400 size-4" />
+        ) : row.original.status === 'unpaid' ? (
+          <IconAlertTriangleFilled className="text-amber-500 dark:text-amber-400 size-4" />
+        ) : (
+          <IconExclamationCircleFilled className="text-red-500 dark:text-red-400 size-4" />
+        )}
+        {row.original.status === 'paid'
+          ? 'Đã thanh toán'
+          : row.original.status === 'unpaid'
+            ? 'Chưa thanh toán'
+            : 'Quá hạn'}
+      </Badge>
+    ),
   },
   {
     id: 'actions',
@@ -141,7 +161,7 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Payment>>) => {
+const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Invoice>>) => {
   const selected = table.getSelectedRowModel().rows;
 
   return (
@@ -161,9 +181,9 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Payment>>) =>
   );
 };
 
-const DashboardPage = () => {
-  const handleRowClick = (payment: Payment) => {
-    console.log(`Clicked payment: `, payment);
+const InvoicePage = () => {
+  const handleRowClick = (invoice: Invoice) => {
+    console.log(`Clicked invoice: `, invoice);
   };
 
   const handleQueryChange = (query: DataTableDefaultQuery) => {
@@ -173,8 +193,6 @@ const DashboardPage = () => {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <SectionCards />
-
         <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
           <TabsContent
             value="outline"
@@ -185,7 +203,7 @@ const DashboardPage = () => {
               columns={columns}
               totalCount={55}
               onRowClick={handleRowClick}
-              getRowId={(payment, index) => payment.id || `row-${index}`}
+              getRowId={(invoice, index) => invoice.id || `row-${index}`}
               // loading={true}
               renderToolbarRight={RenderToolbarRight}
               onQueryChange={handleQueryChange}
@@ -197,4 +215,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default InvoicePage;

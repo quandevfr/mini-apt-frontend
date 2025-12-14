@@ -1,6 +1,14 @@
+// Libs
+import {
+  IconCircleCheckFilled,
+  IconDotsVertical,
+  IconLoader,
+  IconSquareRoundedXFilled,
+} from '@tabler/icons-react';
+import type { ColumnDef, useReactTable } from '@tanstack/react-table';
+
 // Components
 import { DataTableDefault, type DataTableDefaultQuery } from '@/components/DataTableDefault';
-import { SectionCards } from '@/components/section-cards';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -11,50 +19,46 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { IconDotsVertical } from '@tabler/icons-react';
-import type { ColumnDef, useReactTable } from '@tanstack/react-table';
+import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router';
 
-const data: Payment[] = [
+export type Request = {
+  id: string;
+  roomId: string;
+  image: string;
+  tenantId: string;
+  content: string;
+  status: 'success' | 'pending' | 'close';
+};
+
+const data: Request[] = [
   {
-    id: 'm5gr84i9',
-    amount: 316,
+    id: '1',
+    roomId: '1',
+    image: '#',
+    tenantId: '1',
+    content: 'Vòi hoa sen bị hỏng',
     status: 'success',
-    email: 'ken99@example.com',
   },
   {
-    id: '3u1reuv4',
-    amount: 242,
-    status: 'success',
-    email: 'Abe45@example.com',
+    id: '2',
+    roomId: '2',
+    image: '#',
+    tenantId: '2',
+    content: 'Bóng đèn nhà vệ sinh bị hỏng',
+    status: 'pending',
   },
   {
-    id: 'derv1ws0',
-    amount: 837,
-    status: 'processing',
-    email: 'Monserrat44@example.com',
-  },
-  {
-    id: '5kma53ae',
-    amount: 874,
-    status: 'success',
-    email: 'Silas22@example.com',
-  },
-  {
-    id: 'bhqecj4p',
-    amount: 721,
-    status: 'failed',
-    email: 'carmella@example.com',
+    id: '3',
+    roomId: '3',
+    image: '#',
+    tenantId: '3',
+    content: 'Điều hoà không mát',
+    status: 'close',
   },
 ];
 
-export type Payment = {
-  id: string;
-  amount: number;
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  email: string;
-};
-
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Request>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -85,29 +89,53 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: 'roomId',
+    header: 'Phòng',
+    cell: ({ row }) => <div>{row.getValue('roomId')}</div>,
+  },
+  {
+    accessorKey: 'tenantId',
+    header: 'Người gửi yêu cầu',
+    cell: ({ row }) => <div>{row.getValue('tenantId')}</div>,
+  },
+  {
+    accessorKey: 'content',
+    header: 'Nội dung',
+    cell: ({ row }) => (
+      <div className="max-w-xs overflow-hidden truncate">{row.getValue('content')}</div>
+    ),
+  },
+  {
+    accessorKey: 'image',
+    header: 'Hình ảnh',
+    cell: ({ row }) => (
+      <Link to={'#'} className="truncate">
+        {row.getValue('image')}
+      </Link>
+    ),
+  },
+  {
     accessorKey: 'status',
     header: 'Trạng thái',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('status')}</div>,
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email',
-    cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
-  },
-  {
-    accessorKey: 'amount',
-    header: () => <div className="text-right">Tổng cộng</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
+    cell: ({ row }) => (
+      <Badge
+        variant={'outline'}
+        className="text-muted-foreground font-semibold px-1.5 py-1 capitalize"
+      >
+        {row.original.status === 'success' ? (
+          <IconCircleCheckFilled className="text-green-500 dark:text-green-400 size-4" />
+        ) : row.original.status === 'pending' ? (
+          <IconLoader className="text-amber-500 dark:text-amber-400 size-4" />
+        ) : (
+          <IconSquareRoundedXFilled className="text-red-500 dark:text-red-400 size-4" />
+        )}
+        {row.original.status === 'success'
+          ? 'Đã xử lý'
+          : row.original.status === 'pending'
+            ? 'Chờ xử lý'
+            : 'Bỏ qua'}
+      </Badge>
+    ),
   },
   {
     id: 'actions',
@@ -141,7 +169,7 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Payment>>) => {
+const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Request>>) => {
   const selected = table.getSelectedRowModel().rows;
 
   return (
@@ -161,9 +189,9 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Payment>>) =>
   );
 };
 
-const DashboardPage = () => {
-  const handleRowClick = (payment: Payment) => {
-    console.log(`Clicked payment: `, payment);
+const RequestPage = () => {
+  const handleRowClick = (request: Request) => {
+    console.log(`Clicked request: `, request);
   };
 
   const handleQueryChange = (query: DataTableDefaultQuery) => {
@@ -173,8 +201,6 @@ const DashboardPage = () => {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <SectionCards />
-
         <Tabs defaultValue="outline" className="w-full flex-col justify-start gap-6">
           <TabsContent
             value="outline"
@@ -185,7 +211,7 @@ const DashboardPage = () => {
               columns={columns}
               totalCount={55}
               onRowClick={handleRowClick}
-              getRowId={(payment, index) => payment.id || `row-${index}`}
+              getRowId={(request, index) => request.id || `row-${index}`}
               // loading={true}
               renderToolbarRight={RenderToolbarRight}
               onQueryChange={handleQueryChange}
@@ -197,4 +223,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default RequestPage;
