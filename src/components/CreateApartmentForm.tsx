@@ -27,14 +27,26 @@ type Item = {
   value: string;
 };
 
-const createApartmentFormSchema = z.object({
-  name: z.string().min(1, 'Vui lòng nhập tên chung cư mini.'),
-  numberOfRooms: z.string().min(1, 'Vui lòng nhập số lượng phòng.'),
-  numberOfAvailableRooms: z.string().min(1, 'Vui lòng nhập số lượng phòng trống.'),
-  province: z.string().min(1, 'Vui lòng chọn Tỉnh/Thành phố.'),
-  commune: z.string().min(1, 'Vui lòng chọn Xã/Phường.'),
-  address: z.string().min(1, 'Vui lòng nhập địa chỉ (số nhà, tên đường...).'),
-});
+const createApartmentFormSchema = z
+  .object({
+    name: z.string().min(1, 'Vui lòng nhập tên chung cư mini.'),
+    numberOfRooms: z.string().min(1, 'Vui lòng nhập số lượng phòng.'),
+    numberOfAvailableRooms: z.string().min(1, 'Vui lòng nhập số lượng phòng trống.'),
+    province: z.string().min(1, 'Vui lòng chọn Tỉnh/Thành phố.'),
+    commune: z.string().min(1, 'Vui lòng chọn Xã/Phường.'),
+    address: z.string().min(1, 'Vui lòng nhập địa chỉ (số nhà, tên đường...).'),
+  })
+  .refine(
+    (data) => {
+      const rooms = Number(data.numberOfRooms);
+      const available = Number(data.numberOfAvailableRooms);
+      return !isNaN(rooms) && !isNaN(available) && available <= rooms;
+    },
+    {
+      path: ['numberOfAvailableRooms'],
+      error: 'Số lượng phòng trống không được lớn hơn số lượng phòng.',
+    }
+  );
 
 type CreateApartmentFormValues = z.infer<typeof createApartmentFormSchema>;
 
