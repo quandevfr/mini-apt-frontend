@@ -1,4 +1,5 @@
 // Pages
+import CreateApartmentPage from '@/pages/apartment/CreateApartmentPage';
 import ApartmentPage from '@/pages/ApartmentPage';
 import DashboardPage from '@/pages/DashboardPage';
 import InvoicePage from '@/pages/InvoicePage';
@@ -23,8 +24,12 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
         element: <DashboardPage />,
       },
       {
-        path: PATH.PAGE.APARTMENTS,
+        path: PATH.PAGE.APARTMENTS.INDEX,
         element: <ApartmentPage />,
+      },
+      {
+        path: PATH.PAGE.APARTMENTS.CREATE,
+        element: <CreateApartmentPage />,
       },
       {
         path: PATH.PAGE.ROOMS,
@@ -50,7 +55,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
     allowedRoles: ['admin'],
     children: [
       {
-        path: PATH.PAGE.APARTMENTS,
+        path: PATH.PAGE.APARTMENTS.INDEX,
         element: <ApartmentPage />,
       },
     ],
@@ -61,7 +66,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
     allowedRoles: ['manage'],
     children: [
       {
-        path: PATH.PAGE.APARTMENTS,
+        path: PATH.PAGE.APARTMENTS.INDEX,
         element: <ApartmentPage />,
       },
     ],

@@ -50,11 +50,11 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: PATH.PAGE.APARTMENTS,
+          url: PATH.PAGE.APARTMENTS.INDEX,
         },
         {
           title: 'Thêm mới',
-          url: '#',
+          url: PATH.PAGE.APARTMENTS.CREATE,
         },
       ],
     },
