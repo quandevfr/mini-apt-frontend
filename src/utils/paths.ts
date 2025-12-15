@@ -15,7 +15,10 @@ export const PATH = {
 
   PAGE: {
     DASHBOARD: '/',
-    APARTMENTS: '/apartments',
+    APARTMENTS: {
+      INDEX: '/apartments',
+      CREATE: '/apartments/create',
+    },
     ROOMS: '/rooms',
     TENANTS: '/tenants',
     INVOICES: '/invoices',
