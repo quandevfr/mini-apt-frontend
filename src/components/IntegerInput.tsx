@@ -29,7 +29,7 @@ const IntegerInput = ({ onKeyDown, onPaste, ...props }: React.ComponentProps<typ
       {...props}
       type="text"
       inputMode="numeric"
-      placeholder="0"
+      placeholder={props.placeholder ?? '0'}
       pattern="[0-9]*\.?[0-9]*"
       onKeyDown={handleKeyDown}
       onPaste={handlePaste}

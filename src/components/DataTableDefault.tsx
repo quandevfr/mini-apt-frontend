@@ -17,7 +17,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -41,6 +40,7 @@ import {
   IconChevronsRight,
 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
+import { InputGroup, InputGroupAddon, InputGroupInput } from './ui/input-group';
 
 export interface DataTableDefaultQuery {
   search?: string;
@@ -168,19 +168,22 @@ export function DataTableDefault<T>({
 
   return (
     <div className="w-full">
-      <div className="flex items-center pb-4 gap-4">
+      <div className="flex items-center pb-4 pt-1 gap-4">
         <div className="flex items-center gap-4 flex-1">
           {renderToolbarLeft && renderToolbarLeft(table)}
 
           {enableSearch && (
-            <div className="relative max-w-xs">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm kiếm..."
-                value={searchKey}
-                onChange={(event) => setSearchKey(event.target.value)}
-                className="pl-8"
-              />
+            <div className="relative max-w-sm">
+              <InputGroup>
+                <InputGroupInput
+                  placeholder="Tìm kiếm..."
+                  onChange={(event) => setSearchKey(event.target.value)}
+                />
+
+                <InputGroupAddon>
+                  <Search />
+                </InputGroupAddon>
+              </InputGroup>
             </div>
           )}
         </div>

@@ -183,8 +183,6 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Request>>) =>
           Xoá mục đã chọn ({selected.length})
         </Button>
       )}
-
-      <Button onClick={() => console.log(`Thêm mới`)}>Thêm mới</Button>
     </div>
   );
 };

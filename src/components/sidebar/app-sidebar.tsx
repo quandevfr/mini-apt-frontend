@@ -8,6 +8,7 @@ import {
   FileX,
   GalleryVerticalEnd,
   LayoutDashboard,
+  MessageCircleMore,
   Users,
 } from 'lucide-react';
 
@@ -40,6 +41,11 @@ const data = {
       url: PATH.PAGE.DASHBOARD,
       icon: LayoutDashboard,
     },
+    {
+      title: 'Gửi thông báo',
+      url: PATH.PAGE.SENT_MESSAGE,
+      icon: MessageCircleMore,
+    },
   ],
   navMain: [
     {
@@ -66,11 +72,11 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: PATH.PAGE.ROOMS,
+          url: PATH.PAGE.ROOMS.INDEX,
         },
         {
           title: 'Thêm mới',
-          url: '#',
+          url: PATH.PAGE.ROOMS.CREATE,
         },
       ],
     },
@@ -115,10 +121,6 @@ const data = {
         {
           title: 'Danh sách',
           url: PATH.PAGE.REQUEST,
-        },
-        {
-          title: 'Thêm mới',
-          url: '#',
         },
       ],
     },

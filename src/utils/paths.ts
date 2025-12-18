@@ -15,11 +15,15 @@ export const PATH = {
 
   PAGE: {
     DASHBOARD: '/',
+    SENT_MESSAGE: '/sent-message',
     APARTMENTS: {
       INDEX: '/apartments',
       CREATE: '/apartments/create',
     },
-    ROOMS: '/rooms',
+    ROOMS: {
+      INDEX: '/rooms',
+      CREATE: '/rooms/create',
+    },
     TENANTS: '/tenants',
     INVOICES: '/invoices',
     REQUEST: '/requests',
