@@ -88,7 +88,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
           <CardTitle>Tạo chung cư mini mới</CardTitle>
 
           <CardDescription>
-            Thực hiện tạo mới chung cư mini tại đây. Nhấn vào thêm chung cư khi bạn nhập đầy đủ
+            Thực hiện tạo mới chung cư mini tại đây. Nhấn vào thêm chung cư khi bạn đã nhập đầy đủ
             thông tin.
           </CardDescription>
         </CardHeader>
@@ -150,7 +150,10 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                           variant="outline"
                           role="combobox"
                           aria-expanded={openProvince}
-                          className="justify-between"
+                          className={cn(
+                            'justify-between font-normal',
+                            !selectedProvince && 'text-muted-foreground'
+                          )}
                           id="province"
                           name="province"
                         >
@@ -217,7 +220,10 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                           variant="outline"
                           role="combobox"
                           aria-expanded={openCommune}
-                          className="justify-between"
+                          className={cn(
+                            'justify-between font-normal',
+                            !selectedCommune && 'text-muted-foreground'
+                          )}
                           id="commune"
                           name="commune"
                         >

@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { useNavigate } from 'react-router';
+import { PATH } from '@/utils/paths';
 
 export type Room = {
   id: string;
@@ -175,7 +177,12 @@ export const columns: ColumnDef<Room>[] = [
 ];
 
 const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
+  const navigate = useNavigate();
   const selected = table.getSelectedRowModel().rows;
+
+  const handleNavigateCreateForm = () => {
+    navigate(PATH.PAGE.ROOMS.CREATE);
+  };
 
   return (
     <div className="flex items-center gap-4">
@@ -189,7 +196,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
         </Button>
       )}
 
-      <Button onClick={() => console.log(`Thêm mới`)}>Thêm mới</Button>
+      <Button onClick={handleNavigateCreateForm}>Thêm mới</Button>
     </div>
   );
 };

@@ -3,3 +3,8 @@ export interface IUser {
   email: string;
   role: string[];
 }
+
+export interface ItemSelect {
+  label: string;
+  value: string;
+}
