@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 
 export function NavMainButton({
   items,
@@ -23,20 +23,27 @@ export function NavMainButton({
     }[];
   }[];
 }) {
+  const location = useLocation();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Tổng quan</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild isActive={item.isActive}>
-              <Link to={item.url}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
+        {items.map((item) => {
+          const isActive =
+            location.pathname === item.url || location.pathname.startsWith(item.url + '/');
+
+          return (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild className={isActive ? 'bg-sidebar-accent' : ''}>
+                <Link to={item.url}>
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
   );
