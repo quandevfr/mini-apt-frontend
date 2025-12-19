@@ -37,7 +37,6 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
       },
       {
         path: PATH.PAGE.APARTMENTS.INDEX,
-        // element: <ApartmentPage />,
         handle: {
           breadcrumb: 'Chung cư mini',
         },
@@ -56,46 +55,59 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
         ],
       },
       {
-        path: PATH.PAGE.APARTMENTS.CREATE,
-        element: <CreateApartmentPage />,
-        handle: {
-          breadcrumb: 'Tạo chung cư mini',
-        },
-      },
-      {
         path: PATH.PAGE.ROOMS.INDEX,
-        element: <RoomPage />,
         handle: {
           breadcrumb: 'Phòng',
         },
-      },
-      {
-        path: PATH.PAGE.ROOMS.CREATE,
-        element: <CreateRoomPage />,
-        handle: {
-          breadcrumb: 'Tạo phòng',
-        },
+        children: [
+          {
+            index: true,
+            element: <RoomPage />,
+          },
+          {
+            path: PATH.PAGE.ROOMS.CREATE,
+            element: <CreateRoomPage />,
+            handle: {
+              breadcrumb: 'Tạo phòng',
+            },
+          },
+        ],
       },
       {
         path: PATH.PAGE.TENANTS,
-        element: <TenantPage />,
         handle: {
           breadcrumb: 'Người thuê',
         },
+        children: [
+          {
+            index: true,
+            element: <TenantPage />,
+          },
+        ],
       },
       {
         path: PATH.PAGE.INVOICES,
-        element: <InvoicePage />,
         handle: {
           breadcrumb: 'Hoá đơn thanh toán',
         },
+        children: [
+          {
+            index: true,
+            element: <InvoicePage />,
+          },
+        ],
       },
       {
         path: PATH.PAGE.REQUEST,
-        element: <RequestPage />,
         handle: {
           breadcrumb: 'Yêu cầu / Báo hỏng',
         },
+        children: [
+          {
+            index: true,
+            element: <RequestPage />,
+          },
+        ],
       },
     ],
   },

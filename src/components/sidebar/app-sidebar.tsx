@@ -65,7 +65,7 @@ const data = {
       ],
     },
     {
-      title: 'Phòng ở',
+      title: 'Phòng',
       url: '#',
       icon: BedDouble,
       isActive: false,
