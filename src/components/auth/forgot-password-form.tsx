@@ -11,7 +11,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 
 // Others
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import { PATH } from '@/utils/paths';
 import { useAuthFlow } from '@/hooks/useAuthFlow';
 import { Loader2 } from 'lucide-react';

@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 // Others
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import { PATH } from '@/utils/paths';
 
 const signInSchema = z.object({

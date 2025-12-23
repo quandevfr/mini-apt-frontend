@@ -24,7 +24,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from './
 import { Textarea } from './ui/textarea';
 
 // Others
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import type { ItemSelect } from '@/utils/interface';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatPriceVnd, parseVnd } from '@/utils/helpers';
