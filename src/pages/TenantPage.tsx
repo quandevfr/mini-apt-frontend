@@ -9,8 +9,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { PATH } from '@/utils/paths';
 import { IconDotsVertical } from '@tabler/icons-react';
 import type { ColumnDef, useReactTable } from '@tanstack/react-table';
+import { useNavigate } from 'react-router';
 
 export type Tenant = {
   id: string;
@@ -107,7 +109,12 @@ export const columns: ColumnDef<Tenant>[] = [
 ];
 
 const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Tenant>>) => {
+  const navigate = useNavigate();
   const selected = table.getSelectedRowModel().rows;
+
+  const handleNavigateCreateForm = () => {
+    navigate(PATH.PAGE.TENANTS.CREATE);
+  };
 
   return (
     <div className="flex items-center gap-4">
@@ -121,7 +128,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Tenant>>) => 
         </Button>
       )}
 
-      <Button onClick={() => console.log(`Thêm mới`)}>Thêm mới</Button>
+      <Button onClick={handleNavigateCreateForm}>Thêm mới</Button>
     </div>
   );
 };

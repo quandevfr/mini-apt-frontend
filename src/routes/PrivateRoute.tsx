@@ -7,6 +7,7 @@ import RequestPage from '@/pages/RequestPage';
 import CreateRoomPage from '@/pages/room/CreateRoomPage';
 import RoomPage from '@/pages/RoomPage';
 import SentMessagePage from '@/pages/SentMessagePage';
+import CreateTenantPage from '@/pages/tenant/CreateTenantPage';
 import TenantPage from '@/pages/TenantPage';
 
 // Others
@@ -74,7 +75,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
         ],
       },
       {
-        path: PATH.PAGE.TENANTS,
+        path: PATH.PAGE.TENANTS.INDEX,
         handle: {
           breadcrumb: 'Người thuê',
         },
@@ -82,6 +83,13 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
           {
             index: true,
             element: <TenantPage />,
+          },
+          {
+            path: PATH.PAGE.TENANTS.CREATE,
+            element: <CreateTenantPage />,
+            handle: {
+              breadcrumb: 'Thêm người thuê',
+            },
           },
         ],
       },

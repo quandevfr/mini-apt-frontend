@@ -88,11 +88,11 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: PATH.PAGE.TENANTS,
+          url: PATH.PAGE.TENANTS.INDEX,
         },
         {
           title: 'Thêm mới',
-          url: '#',
+          url: PATH.PAGE.TENANTS.CREATE,
         },
       ],
     },

@@ -24,7 +24,10 @@ export const PATH = {
       INDEX: '/rooms',
       CREATE: '/rooms/create',
     },
-    TENANTS: '/tenants',
+    TENANTS: {
+      INDEX: '/tenants',
+      CREATE: '/tenants/create',
+    },
     INVOICES: '/invoices',
     REQUEST: '/requests',
   },

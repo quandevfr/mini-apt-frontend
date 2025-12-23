@@ -6,7 +6,7 @@ import { AppSidebar } from '@/components/sidebar/app-sidebar';
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { ModeToggle } from '@/components/theme/modeToggle';
-import { cn } from '@/lib/utils';
+import { cn } from '@/libs/utils';
 import { AppBreadcrumbs } from '@/components/AppBreadcrumbs';
 
 const MainLayout = () => {
