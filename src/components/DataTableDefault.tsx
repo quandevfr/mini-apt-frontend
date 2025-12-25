@@ -50,7 +50,7 @@ export interface DataTableDefaultQuery {
   filters?: ColumnFiltersState;
 }
 
-interface DataTableDefaultProps<T> {
+export interface DataTableDefaultProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   getRowId?: (row: T, index: number) => string;

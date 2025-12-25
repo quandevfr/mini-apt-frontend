@@ -1,3 +1,5 @@
+import type { InvoiceFormItem } from '@/components/CreateInvoiceForm';
+
 // Định dạng giá tiền việt nam (ví dụ: 1.000.000)
 const formatPriceVnd = (value: string) => {
   const digits = value.replace(/\D/g, '');
@@ -48,6 +50,54 @@ const formatVNDateOnChange = (value: string): string => {
   return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`;
 };
 
+const calculateTempTotal = (
+  inv: Pick<
+    InvoiceFormItem,
+    'oldElectric' | 'newElectric' | 'oldWater' | 'newWater' | 'electricPrice' | 'waterPrice'
+  >
+) => {
+  if (
+    inv.newElectric == null ||
+    inv.newWater == null ||
+    inv.newElectric < inv.oldElectric ||
+    inv.newWater < inv.oldWater
+  ) {
+    return null;
+  }
+
+  const electric = (inv.newElectric - inv.oldElectric) * inv.electricPrice;
+  const water = (inv.newWater - inv.oldWater) * inv.waterPrice;
+
+  return electric + water;
+};
+
+function parseMonth(value?: string) {
+  if (!value) return null;
+  const [y, m] = value.split('-').map(Number);
+  if (!y || !m) return null;
+  return { year: y, month: m - 1 }; // month UI = 0-based
+}
+
+function buildMonthValue(year: number, month: number) {
+  return `${year}-${String(month + 1).padStart(2, '0')}`;
+}
+
+const formatMonthVN = (value?: string | null): string => {
+  if (!value) return '';
+
+  const [year, month] = value.split('-');
+
+  if (!year || !month) return '';
+
+  const monthNumber = Number(month);
+
+  if (Number.isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
+    return '';
+  }
+
+  return `Tháng ${monthNumber}/${year}`;
+};
+
 export {
   formatPriceVnd,
   parseVnd,
@@ -55,4 +105,8 @@ export {
   unFormatPhoneVN,
   vnDateToISO,
   formatVNDateOnChange,
+  calculateTempTotal,
+  parseMonth,
+  buildMonthValue,
+  formatMonthVN,
 };

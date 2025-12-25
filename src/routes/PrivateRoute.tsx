@@ -1,4 +1,5 @@
 // Pages
+import ApartmentDetailsPage from '@/pages/apartment/ApartmentDetailsPage';
 import CreateApartmentPage from '@/pages/apartment/CreateApartmentPage';
 import ApartmentPage from '@/pages/ApartmentPage';
 import DashboardPage from '@/pages/DashboardPage';
@@ -51,6 +52,13 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
             element: <CreateApartmentPage />,
             handle: {
               breadcrumb: 'Tạo chung cư mini',
+            },
+          },
+          {
+            path: PATH.PAGE.APARTMENTS.DETAILS,
+            element: <ApartmentDetailsPage />,
+            handle: {
+              breadcrumb: 'Chi tiết',
             },
           },
         ],

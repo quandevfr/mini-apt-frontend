@@ -19,6 +19,7 @@ export const PATH = {
     APARTMENTS: {
       INDEX: '/apartments',
       CREATE: '/apartments/create',
+      DETAILS: '/apartments/:id',
     },
     ROOMS: {
       INDEX: '/rooms',
