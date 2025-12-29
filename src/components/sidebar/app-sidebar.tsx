@@ -74,10 +74,6 @@ const data = {
           title: 'Danh sách',
           url: PATH.PAGE.ROOMS.INDEX,
         },
-        {
-          title: 'Thêm mới',
-          url: PATH.PAGE.ROOMS.CREATE,
-        },
       ],
     },
     {
@@ -90,10 +86,6 @@ const data = {
           title: 'Danh sách',
           url: PATH.PAGE.TENANTS.INDEX,
         },
-        {
-          title: 'Thêm mới',
-          url: PATH.PAGE.TENANTS.CREATE,
-        },
       ],
     },
     {
@@ -105,10 +97,6 @@ const data = {
         {
           title: 'Danh sách',
           url: PATH.PAGE.INVOICES,
-        },
-        {
-          title: 'Thêm mới',
-          url: '#',
         },
       ],
     },
