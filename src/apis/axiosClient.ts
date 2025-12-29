@@ -1,14 +1,18 @@
-import axios from "axios";
+import axios, { type AxiosInstance } from 'axios';
 
-const api = axios.create({
+const axiosClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  timeout: 15000,
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // Gắn accessToken vào req header
-api.interceptors.request.use((config) => {
+axiosClient.interceptors.request.use((config) => {
   // todo: lấy accessToken từ store
-  const accessToken = ""
+  const accessToken = '';
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -18,36 +22,36 @@ api.interceptors.request.use((config) => {
 });
 
 // Tự động gọi refresh api khi accessToken hết hạn
-api.interceptors.response.use(
+axiosClient.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
 
     // Những API không cần check
     if (
-      originalRequest.url.includes("/auth/signin") ||
-      originalRequest.url.includes("/auth/signup") ||
-      originalRequest.url.includes("/auth/refresh")
+      originalRequest.url.includes('/auth/signin') ||
+      originalRequest.url.includes('/auth/signup') ||
+      originalRequest.url.includes('/auth/refresh')
     ) {
       return Promise.reject(error);
     }
 
     originalRequest._retryCount = originalRequest._retryCount || 0;
 
-    if (error.response?.status === 403 && originalRequest._retryCount < 4) {
+    if (error.response?.status === 401 && originalRequest._retryCount < 4) {
       originalRequest._retryCount += 1;
 
-      console.log("refresh", originalRequest._retryCount);
+      console.log('refresh', originalRequest._retryCount);
 
       try {
-        const res = await api.post("/auth/refresh", { withCredentials: true });
+        const res = await axiosClient.post('/auth/refresh', { withCredentials: true });
         const newAccessToken = res.data.accessToken;
 
         // todo: set lại accessToken mới vào store
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-        return api(originalRequest);
+        return axiosClient(originalRequest);
       } catch (refreshError) {
         // todo: clear store
         return Promise.reject(refreshError);
@@ -58,4 +62,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default axiosClient;
