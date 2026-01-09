@@ -6,6 +6,7 @@ export const PATH = {
     VERIFY_OTP: '/auth/verify-otp',
     RESET_PASSWORD: '/auth/reset-password',
     RESET_SUCCESS: '/auth/reset-password/success',
+    REFRESH: '/auth/refresh',
   },
 
   ERROR: {

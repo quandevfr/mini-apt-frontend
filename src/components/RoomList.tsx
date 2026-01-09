@@ -2,6 +2,7 @@
 import { IconDotsVertical } from '@tabler/icons-react';
 import type { ColumnDef, useReactTable } from '@tanstack/react-table';
 import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
 
 // Components
 import { DataTableDefault, type DataTableDefaultQuery } from '@/components/DataTableDefault';
@@ -17,6 +18,9 @@ import {
 
 // Others
 import { PATH } from '@/utils/paths';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import type { RootState } from '@/store/rootReducer';
+import { getRooms } from '@/features/room/roomThunk';
 
 export type Room = {
   id: string;
@@ -30,41 +34,41 @@ export type Room = {
   currentWaterNumber: number;
 };
 
-const data: Room[] = [
-  {
-    id: '1',
-    code: '201',
-    name: 'Phòng 201',
-    apartmentId: '1',
-    numberOfTenant: 2,
-    previousMeterNumber: 295,
-    currentMeterNumber: 525,
-    previousWaterNumber: 56,
-    currentWaterNumber: 63,
-  },
-  {
-    id: '2',
-    code: '202',
-    name: 'Phòng 202',
-    apartmentId: '1',
-    numberOfTenant: 2,
-    previousMeterNumber: 1254,
-    currentMeterNumber: 1442,
-    previousWaterNumber: 123,
-    currentWaterNumber: 135,
-  },
-  {
-    id: '1',
-    code: '203',
-    name: 'Phòng 203',
-    apartmentId: '1',
-    numberOfTenant: 2,
-    previousMeterNumber: 245,
-    currentMeterNumber: 455,
-    previousWaterNumber: 34,
-    currentWaterNumber: 46,
-  },
-];
+// const data: Room[] = [
+//   {
+//     id: '1',
+//     code: '201',
+//     name: 'Phòng 201',
+//     apartmentId: '1',
+//     numberOfTenant: 2,
+//     previousMeterNumber: 295,
+//     currentMeterNumber: 525,
+//     previousWaterNumber: 56,
+//     currentWaterNumber: 63,
+//   },
+//   {
+//     id: '2',
+//     code: '202',
+//     name: 'Phòng 202',
+//     apartmentId: '1',
+//     numberOfTenant: 2,
+//     previousMeterNumber: 1254,
+//     currentMeterNumber: 1442,
+//     previousWaterNumber: 123,
+//     currentWaterNumber: 135,
+//   },
+//   {
+//     id: '1',
+//     code: '203',
+//     name: 'Phòng 203',
+//     apartmentId: '1',
+//     numberOfTenant: 2,
+//     previousMeterNumber: 245,
+//     currentMeterNumber: 455,
+//     previousWaterNumber: 34,
+//     currentWaterNumber: 46,
+//   },
+// ];
 
 export const columns: ColumnDef<Room>[] = [
   {
@@ -203,6 +207,14 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
 };
 
 const RoomList = () => {
+  const dispatch = useAppDispatch();
+  const loading = useAppSelector((state: RootState) => state.room.loading);
+  const list = useAppSelector((state: RootState) => state.room.list);
+
+  useEffect(() => {
+    dispatch(getRooms());
+  }, [dispatch]);
+
   const handleRowClick = (room: Room) => {
     console.log(`Clicked room: `, room);
   };
@@ -213,12 +225,12 @@ const RoomList = () => {
 
   return (
     <DataTableDefault
-      data={data}
+      data={list ?? []}
       columns={columns}
-      totalCount={55}
+      totalCount={1}
       onRowClick={handleRowClick}
       getRowId={(room, index) => room.id || `row-${index}`}
-      // loading={true}
+      loading={loading}
       renderToolbarRight={RenderToolbarRight}
       onQueryChange={handleQueryChange}
     />

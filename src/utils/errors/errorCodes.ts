@@ -1,0 +1,7 @@
+export const ERROR_CODES = {
+  ROOM_ALREADY_OCCUPIED: 'ROOM_ALREADY_OCCUPIED',
+  INVOICE_LOCKED: 'INVOICE_LOCKED',
+  STAFF_NO_PERMISSION: 'STAFF_NO_PERMISSION',
+} as const;
+
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
