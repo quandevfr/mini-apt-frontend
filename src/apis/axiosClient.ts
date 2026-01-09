@@ -1,44 +1,86 @@
+// Libs
 import axios, { type AxiosInstance } from 'axios';
+import { toast } from 'sonner';
+
+// Others
+import { ERROR_MESSAGE_MAP } from '@/utils/errors/errorMessages';
+import { PATH } from '@/utils/paths';
+
+const timeout = 1000 * 60 * 10;
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 15000,
+  timeout: timeout,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Gắn accessToken vào req header
-axiosClient.interceptors.request.use((config) => {
-  // todo: lấy accessToken từ store
-  const accessToken = '';
+// Add a request interceptor
+axiosClient.interceptors.request.use(
+  function (config) {
+    // Do something before request is sent
 
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+    const accessToken = '';
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return config;
+  },
+  function (error) {
+    // Do something with request error
+    return Promise.reject(error);
   }
+);
 
-  return config;
-});
-
-// Tự động gọi refresh api khi accessToken hết hạn
+// Add a response interceptor
 axiosClient.interceptors.response.use(
-  (res) => res,
-  async (error) => {
+  function onFulfilled(response) {
+    // Any status code that lie within the range of 2xx cause this function to trigger
+    // Do something with response data
+    return response;
+  },
+  async function onRejected(error) {
+    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    // Do something with response error
+
+    const status = error.response?.status;
+    const data = error.response?.data;
+
+    if (status !== 410) {
+      toast.error(data?.message || error?.message);
+    }
+
+    if (status === 401) {
+      // refresh token / logout
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config;
 
+    const AUTH_EXCLUDE_PATHS = [
+      PATH.AUTH.SIGNIN,
+      PATH.AUTH.SIGNUP,
+      PATH.AUTH.FORGOT_PASSWORD,
+      PATH.AUTH.REFRESH,
+      PATH.AUTH.RESET_PASSWORD,
+      PATH.AUTH.RESET_SUCCESS,
+      PATH.AUTH.VERIFY_OTP,
+    ];
+
+    const isAuthExcluded = AUTH_EXCLUDE_PATHS.some((path) => originalRequest.url?.includes(path));
+
     // Những API không cần check
-    if (
-      originalRequest.url.includes('/auth/signin') ||
-      originalRequest.url.includes('/auth/signup') ||
-      originalRequest.url.includes('/auth/refresh')
-    ) {
+    if (isAuthExcluded) {
       return Promise.reject(error);
     }
 
     originalRequest._retryCount = originalRequest._retryCount || 0;
 
-    if (error.response?.status === 401 && originalRequest._retryCount < 4) {
+    if (error.response?.status === 401 && originalRequest._retryCount < 2) {
       originalRequest._retryCount += 1;
 
       console.log('refresh', originalRequest._retryCount);
@@ -56,6 +98,14 @@ axiosClient.interceptors.response.use(
         // todo: clear store
         return Promise.reject(refreshError);
       }
+    }
+
+    if (data?.code && ERROR_MESSAGE_MAP[data.code]) {
+      toast.error(ERROR_MESSAGE_MAP[data.code]);
+    } else if (data?.message) {
+      toast.error(data?.message);
+    } else {
+      toast.error('Có lỗi xảy ra, vui lòng thử lại!');
     }
 
     return Promise.reject(error);

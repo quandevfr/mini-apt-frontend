@@ -16,6 +16,10 @@ import {
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router';
 import { PATH } from '@/utils/paths';
+import { getApartments } from '@/features/apartment/apartmentThunk';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import type { RootState } from '@/store/rootReducer';
 
 export type Apartment = {
   id: string;
@@ -26,7 +30,7 @@ export type Apartment = {
   numberOfAvailableRooms: number;
 };
 
-const data: Apartment[] = [];
+// const data: Apartment[] = [];
 
 export const columns: ColumnDef<Apartment>[] = [
   {
@@ -149,6 +153,14 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Apartment>>) 
 };
 
 const ApartmentPage = () => {
+  const dispatch = useAppDispatch();
+  const loading = useAppSelector((state: RootState) => state.apartment.loading);
+  const list = useAppSelector((state: RootState) => state.apartment.list);
+
+  useEffect(() => {
+    dispatch(getApartments());
+  }, [dispatch]);
+
   const handleRowClick = (apartment: Apartment) => {
     console.log(`Clicked apartment: `, apartment);
   };
@@ -166,12 +178,12 @@ const ApartmentPage = () => {
             className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
           >
             <DataTableDefault
-              data={data}
+              data={list ?? []}
               columns={columns}
               totalCount={55}
               onRowClick={handleRowClick}
               getRowId={(payment, index) => payment.id || `row-${index}`}
-              loading={true}
+              loading={loading}
               renderToolbarRight={RenderToolbarRight}
               onQueryChange={handleQueryChange}
             />
