@@ -92,7 +92,8 @@ const TableSkeleton = ({ colCount }: { colCount: number }) => {
 export function DataTableDefault<T>({
   columns,
   data,
-  getRowId = (row: T, index: number) => `row-${index}`,
+  // getRowId = (row: T, index: number) => `row-${index}`,
+  getRowId = (_, index: number) => `row-${index}`,
   onRowClick,
   loading,
   totalCount,
