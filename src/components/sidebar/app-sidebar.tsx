@@ -6,7 +6,6 @@ import {
   Building,
   FileText,
   FileX,
-  GalleryVerticalEnd,
   LayoutDashboard,
   MessageCircleMore,
   Users,
@@ -27,6 +26,7 @@ import {
 import { NavMainButton } from './nav-main-button';
 import { PATH } from '@/utils/paths';
 import { Link } from 'react-router';
+import miniAptLogo from '@/assets/logo/mini-apt-logo.svg';
 
 // This is sample data.
 const data = {
@@ -123,8 +123,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to={PATH.PAGE.DASHBOARD}>
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <GalleryVerticalEnd className="size-4" />
+                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <img src={miniAptLogo} alt="logo" className="" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-medium">Mini Apartment</span>

@@ -35,7 +35,11 @@ export function NavMainButton({
 
           return (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild className={isActive ? 'bg-sidebar-accent' : ''}>
+              <SidebarMenuButton
+                size={'lg'}
+                asChild
+                className={isActive ? 'bg-sidebar-accent' : ''}
+              >
                 <Link to={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
