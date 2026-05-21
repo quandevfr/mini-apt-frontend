@@ -26,7 +26,7 @@ import {
 import { NavMainButton } from './nav-main-button';
 import { PATH } from '@/utils/paths';
 import { Link } from 'react-router';
-import miniAptLogo from '@/assets/logo/mini-apt-logo.svg';
+import miniAptLogo from '@/assets/logo/mini-apt-logo.png';
 
 // This is sample data.
 const data = {
