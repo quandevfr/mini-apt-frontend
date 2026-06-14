@@ -1,18 +1,21 @@
+// Libs
+import { lazy } from 'react';
+
 // Pages
-import ApartmentDetailsPage from '@/pages/apartment/ApartmentDetailsPage';
-import CreateApartmentPage from '@/pages/apartment/CreateApartmentPage';
-import ApartmentPage from '@/pages/ApartmentPage';
-import DashboardPage from '@/pages/DashboardPage';
-import InvoicePage from '@/pages/InvoicePage';
-import RequestPage from '@/pages/RequestPage';
-import CreateRoomPage from '@/pages/room/CreateRoomPage';
-import RoomPage from '@/pages/RoomPage';
-import SentMessagePage from '@/pages/SentMessagePage';
-import CreateTenantPage from '@/pages/tenant/CreateTenantPage';
-import TenantPage from '@/pages/TenantPage';
+const ApartmentDetailsPage = lazy(() => import('@/pages/apartment/ApartmentDetailsPage'));
+const CreateApartmentPage = lazy(() => import('@/pages/apartment/CreateApartmentPage'));
+const ApartmentPage = lazy(() => import('@/pages/ApartmentPage'));
+const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
+const InvoicePage = lazy(() => import('@/pages/InvoicePage'));
+const RequestPage = lazy(() => import('@/pages/RequestPage'));
+const CreateRoomPage = lazy(() => import('@/pages/room/CreateRoomPage'));
+const RoomPage = lazy(() => import('@/pages/RoomPage'));
+const SentMessagePage = lazy(() => import('@/pages/SentMessagePage'));
+const CreateTenantPage = lazy(() => import('@/pages/tenant/CreateTenantPage'));
+const TenantPage = lazy(() => import('@/pages/TenantPage'));
 
 // Others
-import { PATH } from '@/utils/paths';
+import { PATHS } from '@/utils/constants/paths';
 import type { IPrivateRouteObject } from '@/utils/types';
 
 export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
@@ -24,21 +27,21 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
         element: <>Profiles</>,
       },
       {
-        path: PATH.PAGE.DASHBOARD,
+        path: PATHS.PAGE.DASHBOARD,
         element: <DashboardPage />,
         handle: {
           breadcrumb: 'Trang chủ',
         },
       },
       {
-        path: PATH.PAGE.SENT_MESSAGE,
+        path: PATHS.PAGE.SENT_MESSAGE,
         element: <SentMessagePage />,
         handle: {
           breadcrumb: 'Gửi thông báo',
         },
       },
       {
-        path: PATH.PAGE.APARTMENTS.INDEX,
+        path: PATHS.PAGE.APARTMENTS.INDEX,
         handle: {
           breadcrumb: 'Chung cư mini',
         },
@@ -48,14 +51,14 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
             element: <ApartmentPage />,
           },
           {
-            path: PATH.PAGE.APARTMENTS.CREATE,
+            path: PATHS.PAGE.APARTMENTS.CREATE,
             element: <CreateApartmentPage />,
             handle: {
               breadcrumb: 'Tạo chung cư mini',
             },
           },
           {
-            path: PATH.PAGE.APARTMENTS.DETAILS,
+            path: PATHS.PAGE.APARTMENTS.DETAILS,
             element: <ApartmentDetailsPage />,
             handle: {
               breadcrumb: 'Chi tiết',
@@ -64,7 +67,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
         ],
       },
       {
-        path: PATH.PAGE.ROOMS.INDEX,
+        path: PATHS.PAGE.ROOMS.INDEX,
         handle: {
           breadcrumb: 'Phòng',
         },
@@ -74,7 +77,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
             element: <RoomPage />,
           },
           {
-            path: PATH.PAGE.ROOMS.CREATE,
+            path: PATHS.PAGE.ROOMS.CREATE,
             element: <CreateRoomPage />,
             handle: {
               breadcrumb: 'Tạo phòng',
@@ -83,7 +86,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
         ],
       },
       {
-        path: PATH.PAGE.TENANTS.INDEX,
+        path: PATHS.PAGE.TENANTS.INDEX,
         handle: {
           breadcrumb: 'Người thuê',
         },
@@ -93,7 +96,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
             element: <TenantPage />,
           },
           {
-            path: PATH.PAGE.TENANTS.CREATE,
+            path: PATHS.PAGE.TENANTS.CREATE,
             element: <CreateTenantPage />,
             handle: {
               breadcrumb: 'Thêm người thuê',
@@ -102,7 +105,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
         ],
       },
       {
-        path: PATH.PAGE.INVOICES,
+        path: PATHS.PAGE.INVOICES,
         handle: {
           breadcrumb: 'Hoá đơn thanh toán',
         },
@@ -114,7 +117,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
         ],
       },
       {
-        path: PATH.PAGE.REQUEST,
+        path: PATHS.PAGE.REQUEST,
         handle: {
           breadcrumb: 'Yêu cầu / Báo hỏng',
         },
@@ -133,7 +136,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
     allowedRoles: ['admin'],
     children: [
       {
-        path: PATH.PAGE.APARTMENTS.INDEX,
+        path: PATHS.PAGE.APARTMENTS.INDEX,
         element: <ApartmentPage />,
       },
     ],
@@ -144,7 +147,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
     allowedRoles: ['manage'],
     children: [
       {
-        path: PATH.PAGE.APARTMENTS.INDEX,
+        path: PATHS.PAGE.APARTMENTS.INDEX,
         element: <ApartmentPage />,
       },
     ],

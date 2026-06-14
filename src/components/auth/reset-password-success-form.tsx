@@ -11,8 +11,8 @@ import resetSuccessGif from '@/assets/auth/resetSuccess.gif';
 
 // Others
 import { cn } from '@/libs/utils';
-import { PATH } from '@/utils/paths';
 import { useAuthFlow } from '@/hooks/useAuthFlow';
+import { PATHS } from '@/utils/constants/paths';
 
 const ResetPasswordSuccessForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
   const navigate = useNavigate();
@@ -20,11 +20,11 @@ const ResetPasswordSuccessForm = ({ className, ...props }: React.ComponentProps<
 
   const handleNavigateToSignIn = () => {
     resetFlow();
-    navigate(PATH.AUTH.SIGNIN);
+    navigate(PATHS.AUTH.SIGN_IN);
   };
 
   return (
-    <FlowGuard condition={!!otp} redirectTo={PATH.AUTH.SIGNIN}>
+    <FlowGuard condition={!!otp} redirectTo={PATHS.AUTH.SIGN_IN}>
       <div className={cn('flex flex-col gap-6', className)} {...props}>
         <div className="relative flex items-center justify-center">
           <img src={resetSuccessGif} alt="success" className="size-40" />

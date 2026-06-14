@@ -17,10 +17,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 // Others
-import { PATH } from '@/utils/paths';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import type { RootState } from '@/store/rootReducer';
 import { getRooms } from '@/features/room/roomThunk';
+import { PATHS } from '@/utils/constants/paths';
 
 export type Room = {
   id: string;
@@ -186,7 +186,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
   const selected = table.getSelectedRowModel().rows;
 
   const handleNavigateCreateForm = () => {
-    navigate(PATH.PAGE.ROOMS.CREATE);
+    navigate(PATHS.PAGE.ROOMS.CREATE);
   };
 
   return (

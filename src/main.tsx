@@ -13,15 +13,18 @@ import { store } from './store/store.ts';
 
 // Styles
 import './index.css';
+import AppInitializer from '@/components/common/AppInitializer.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </ThemeProvider>
+      <AppInitializer>
+        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ThemeProvider>
+      </AppInitializer>
     </Provider>
   </StrictMode>
 );

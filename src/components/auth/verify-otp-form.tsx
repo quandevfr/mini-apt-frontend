@@ -13,9 +13,9 @@ import FlowGuard from '../common/FlowGuard';
 
 // Others
 import { cn } from '@/libs/utils';
-import { PATH } from '@/utils/paths';
 import { useAuthFlow } from '@/hooks/useAuthFlow';
 import { Loader2 } from 'lucide-react';
+import { PATHS } from '@/utils/constants/paths';
 
 const verifyOPTSchema = z.object({
   otp: z.string().length(6, 'OTP phải có 6 chữ số.').regex(/^\d+$/, 'OTP chỉ chứa số.'),
@@ -41,7 +41,7 @@ const VerifyOTPForm = ({ className, ...props }: React.ComponentProps<'form'>) =>
 
     setOtp(data.otp);
 
-    navigate(PATH.AUTH.RESET_PASSWORD);
+    navigate(PATHS.AUTH.RESET_PASSWORD);
   };
 
   const handleResendOTP = () => {
@@ -49,7 +49,7 @@ const VerifyOTPForm = ({ className, ...props }: React.ComponentProps<'form'>) =>
   };
 
   return (
-    <FlowGuard condition={!!email} redirectTo={PATH.AUTH.SIGNIN}>
+    <FlowGuard condition={!!email} redirectTo={PATHS.AUTH.SIGN_IN}>
       <form
         className={cn('flex flex-col gap-6', className)}
         {...props}

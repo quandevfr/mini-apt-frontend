@@ -1,5 +1,4 @@
 import { ChevronsUpDown, CircleUserRound, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -17,7 +16,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { PATH } from '@/utils/paths';
+import { useAppDispatch } from '@/store/hooks';
+import { signOut } from '@/features/auth/authThunk';
+import { useNavigate } from 'react-router';
+import { PATHS } from '@/utils/constants/paths';
 
 export function NavUser({
   user,
@@ -29,10 +31,19 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    navigate(PATH.AUTH.SIGNIN);
+  const handleLogout = async () => {
+    try {
+      await dispatch(signOut()).unwrap();
+
+      navigate(PATHS.AUTH.SIGN_IN, { replace: true });
+    } catch (error) {
+      console.error(error);
+
+      navigate(PATHS.AUTH.SIGN_IN, { replace: true });
+    }
   };
 
   return (
@@ -46,7 +57,9 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {user.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
 
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -68,7 +81,9 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {user.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
 
                 <div className="grid flex-1 text-left text-sm leading-tight">

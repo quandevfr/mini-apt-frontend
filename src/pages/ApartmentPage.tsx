@@ -15,11 +15,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router';
-import { PATH } from '@/utils/paths';
 import { getApartments } from '@/features/apartment/apartmentThunk';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import type { RootState } from '@/store/rootReducer';
+import { PATHS } from '@/utils/constants/paths';
 
 export type Apartment = {
   id: string;
@@ -132,7 +132,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Apartment>>) 
   const selected = table.getSelectedRowModel().rows;
 
   const handleNavigateToCreate = () => {
-    navigate(PATH.PAGE.APARTMENTS.CREATE);
+    navigate(PATHS.PAGE.APARTMENTS.CREATE);
   };
 
   return (

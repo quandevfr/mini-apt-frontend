@@ -14,9 +14,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { PATHS } from '@/utils/constants/paths';
 
 // Others
-import { PATH } from '@/utils/paths';
 
 export type Tenant = {
   id: string;
@@ -117,7 +117,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Tenant>>) => 
   const selected = table.getSelectedRowModel().rows;
 
   const handleNavigateCreateForm = () => {
-    navigate(PATH.PAGE.TENANTS.CREATE);
+    navigate(PATHS.PAGE.TENANTS.CREATE);
   };
 
   return (

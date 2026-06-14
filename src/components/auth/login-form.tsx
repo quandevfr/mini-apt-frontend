@@ -13,7 +13,10 @@ import { Label } from '@/components/ui/label';
 
 // Others
 import { cn } from '@/libs/utils';
-import { PATH } from '@/utils/paths';
+import { useAppDispatch } from '@/store/hooks';
+import { signIn } from '@/features/auth/authThunk';
+import { PATHS } from '@/utils/constants/paths';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const signInSchema = z.object({
   email: z.email('Email không hợp lệ.'),
@@ -32,15 +35,18 @@ export const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>)
   });
 
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const onSubmit = async (data: SignInFormValues) => {
-    //
+    try {
+      await dispatch(signIn(data)).unwrap();
 
-    console.log(data);
-
-    navigate(PATH.PAGE.DASHBOARD);
+      navigate('/');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -50,16 +56,31 @@ export const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>)
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Chào mừng quay trở lại</h1>
+        <h1 className="text-2xl font-bold">
+          Chào mừng đến với <br /> Mini Apt Management!
+        </h1>
         <p className="text-balance text-sm text-muted-foreground">
           Đăng nhập tài khoản của bạn để bắt đầu
         </p>
       </div>
 
+      <Alert className="border-sky-400 bg-sky-900">
+        <AlertDescription>
+          Sử dụng <span className="font-bold">demoapt@gmail.com</span> với mật khẩu{' '}
+          <span className="font-bold">@Miniapt</span>
+        </AlertDescription>
+      </Alert>
+
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" {...register('email')} />
+          <Input
+            id="email"
+            type="email"
+            placeholder="example@gmail.com"
+            {...register('email')}
+            tabIndex={1}
+          />
           {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
         </div>
 
@@ -67,7 +88,7 @@ export const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>)
           <div className="flex items-center">
             <Label htmlFor="password">Mật khẩu</Label>
             <Link
-              to={PATH.AUTH.FORGOT_PASSWORD}
+              to={PATHS.AUTH.FORGOT_PASSWORD}
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
               Quên mật khẩu?
@@ -78,6 +99,7 @@ export const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>)
               id="password"
               type={showPassword ? 'text' : 'password'}
               {...register('password')}
+              tabIndex={2}
             />
 
             <Button
@@ -97,17 +119,17 @@ export const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>)
           {errors.password && <p className="text-destructive text-sm">{errors.password.message}</p>}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting} tabIndex={3} size={'lg'}>
           {isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : 'Đăng nhập'}
         </Button>
       </div>
 
-      <div className="text-center text-sm">
+      {/* <div className="text-center text-sm">
         Bạn chưa có tài khoản?{' '}
         <Link to={PATH.AUTH.SIGNUP} className="underline underline-offset-4">
           Đăng ký
         </Link>
-      </div>
+      </div> */}
     </form>
   );
 };
