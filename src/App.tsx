@@ -26,13 +26,12 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <MainLayout />,
+    element: <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} />,
     children: [
-      // Private routes
-      ...PRIVATE_ROUTES.map((r) => ({
-        element: <ProtectedRoute allowedRoles={r.allowedRoles} />,
-        children: r.children,
-      })),
+      {
+        element: <MainLayout />,
+        children: [...PRIVATE_ROUTES],
+      },
     ],
   },
   {

@@ -24,9 +24,10 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { NavMainButton } from './nav-main-button';
-import { PATH } from '@/utils/paths';
 import { Link } from 'react-router';
 import miniAptLogo from '@/assets/logo/mini-apt-logo.png';
+import { PATHS } from '@/utils/constants/paths';
+import { useAppSelector } from '@/store/hooks';
 
 // This is sample data.
 const data = {
@@ -38,12 +39,12 @@ const data = {
   navOverview: [
     {
       title: 'Thống kê',
-      url: PATH.PAGE.DASHBOARD,
+      url: PATHS.PAGE.DASHBOARD,
       icon: LayoutDashboard,
     },
     {
       title: 'Gửi thông báo',
-      url: PATH.PAGE.SENT_MESSAGE,
+      url: PATHS.PAGE.SENT_MESSAGE,
       icon: MessageCircleMore,
     },
   ],
@@ -56,11 +57,11 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: PATH.PAGE.APARTMENTS.INDEX,
+          url: PATHS.PAGE.APARTMENTS.INDEX,
         },
         {
           title: 'Thêm mới',
-          url: PATH.PAGE.APARTMENTS.CREATE,
+          url: PATHS.PAGE.APARTMENTS.CREATE,
         },
       ],
     },
@@ -72,7 +73,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: PATH.PAGE.ROOMS.INDEX,
+          url: PATHS.PAGE.ROOMS.INDEX,
         },
       ],
     },
@@ -84,7 +85,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: PATH.PAGE.TENANTS.INDEX,
+          url: PATHS.PAGE.TENANTS.INDEX,
         },
       ],
     },
@@ -96,7 +97,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: PATH.PAGE.INVOICES,
+          url: PATHS.PAGE.INVOICES,
         },
       ],
     },
@@ -108,7 +109,7 @@ const data = {
       items: [
         {
           title: 'Danh sách',
-          url: PATH.PAGE.REQUEST,
+          url: PATHS.PAGE.REQUEST,
         },
       ],
     },
@@ -116,13 +117,15 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useAppSelector((state) => state.auth);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to={PATH.PAGE.DASHBOARD}>
+              <Link to={PATHS.PAGE.DASHBOARD}>
                 <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <img src={miniAptLogo} alt="logo" className="" />
                 </div>
@@ -142,7 +145,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{
+            avatar: user?.avatarUrl || '',
+            name: user?.displayName || '',
+            email: user?.email || '',
+          }}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

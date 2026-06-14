@@ -12,9 +12,9 @@ import { Button } from '../ui/button';
 
 // Others
 import { cn } from '@/libs/utils';
-import { PATH } from '@/utils/paths';
 import { useAuthFlow } from '@/hooks/useAuthFlow';
 import { Loader2 } from 'lucide-react';
+import { PATHS } from '@/utils/constants/paths';
 
 const forgotPasswordSchema = z.object({
   email: z.email('Email không hợp lệ.'),
@@ -40,7 +40,7 @@ const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps<'form'
     console.log(data);
 
     setEmail(data.email);
-    navigate(PATH.AUTH.VERIFY_OTP);
+    navigate(PATHS.AUTH.VERIFY);
   };
 
   return (
@@ -69,7 +69,7 @@ const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps<'form'
       </div>
 
       <div className="text-center text-sm">
-        <Link to={PATH.AUTH.SIGNIN} className="underline underline-offset-4">
+        <Link to={PATHS.AUTH.SIGN_IN} className="underline underline-offset-4">
           Quay lại đăng nhập
         </Link>
       </div>

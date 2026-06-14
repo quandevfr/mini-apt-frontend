@@ -14,8 +14,8 @@ import FlowGuard from '../common/FlowGuard';
 
 // Others
 import { cn } from '@/libs/utils';
-import { PATH } from '@/utils/paths';
 import { useAuthFlow } from '@/hooks/useAuthFlow';
+import { PATHS } from '@/utils/constants/paths';
 
 const resetPasswordSchema = z
   .object({
@@ -49,11 +49,11 @@ const ResetPasswordForm = ({ className, ...props }: React.ComponentProps<'form'>
 
     console.log(data);
 
-    navigate(PATH.AUTH.RESET_SUCCESS);
+    navigate(PATHS.AUTH.RESET_PASSWORD_SUCCESS);
   };
 
   return (
-    <FlowGuard condition={!!otp} redirectTo={PATH.AUTH.SIGNIN}>
+    <FlowGuard condition={!!otp} redirectTo={PATHS.AUTH.SIGN_IN}>
       <form
         className={cn('flex flex-col gap-6', className)}
         {...props}

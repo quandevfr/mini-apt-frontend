@@ -1,19 +1,16 @@
-export const PATH = {
+export const PATHS = {
   AUTH: {
-    SIGNIN: '/auth/signin',
-    SIGNUP: '/auth/signup',
+    SIGN_IN: '/auth/signin',
     FORGOT_PASSWORD: '/auth/forgot-password',
-    VERIFY_OTP: '/auth/verify-otp',
+    VERIFY: '/auth/verify-otp',
     RESET_PASSWORD: '/auth/reset-password',
-    RESET_SUCCESS: '/auth/reset-password/success',
+    RESET_PASSWORD_SUCCESS: '/auth/reset-password/success',
     REFRESH: '/auth/refresh',
   },
-
   ERROR: {
     NOT_FOUND: '/404',
     UNAUTHORIZED: '/unauthorized',
   },
-
   PAGE: {
     DASHBOARD: '/',
     SENT_MESSAGE: '/sent-message',
