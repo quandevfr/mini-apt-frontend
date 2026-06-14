@@ -14,14 +14,20 @@ import AuthLayout from './layouts/AuthLayout';
 import NotFoundPage from './pages/NotFoundPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import PublicGuard from '@/components/common/PublicGuard';
 
 const router = createBrowserRouter([
   {
-    path: '/auth',
-    element: <AuthLayout />,
+    element: <PublicGuard />,
     children: [
-      // Public routes
-      ...PUBLIC_ROUTES,
+      {
+        path: '/auth',
+        element: <AuthLayout />,
+        children: [
+          // Public routes
+          ...PUBLIC_ROUTES,
+        ],
+      },
     ],
   },
   {
