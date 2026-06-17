@@ -55,7 +55,7 @@ const STATUS = [
 ] as const;
 
 const addressSchema = z.object({
-  // provinceCode: z.string('Mã tỉnh/thành phố là bắt buộc').min(1, 'Mã tỉnh/thành phố là bắt buộc'),
+  provinceCode: z.string('Mã tỉnh/thành phố là bắt buộc').min(1, 'Mã tỉnh/thành phố là bắt buộc'),
 
   provinceName: z.string('Tên tỉnh/thành phố là bắt buộc').min(1, 'Tên tỉnh/thành phố là bắt buộc'),
 
@@ -63,7 +63,7 @@ const addressSchema = z.object({
 
   // districtName: z.string('Tên quận/huyện là bắt buộc').min(1, 'Tên quận/huyện là bắt buộc'),
 
-  // wardCode: z.string('Mã phường/xã là bắt buộc').min(1, 'Mã phường/xã là bắt buộc'),
+  wardCode: z.string('Mã phường/xã là bắt buộc').min(1, 'Mã phường/xã là bắt buộc'),
 
   wardName: z.string('Tên phường/xã là bắt buộc').min(1, 'Tên phường/xã là bắt buộc'),
 

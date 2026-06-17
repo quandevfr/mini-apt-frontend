@@ -1,6 +1,6 @@
 // Libs
 import { Check, ChevronsUpDown, CloudUpload, X } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as z from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -62,149 +62,21 @@ import { MAX_FILE_SIZE } from '@/utils/constants/file';
 import { FileRejectReason } from '@/utils/enums/file';
 import { cn } from '@/libs/utils';
 import { AMENITIES, STATUS, createApartmentFormSchema } from '@/pages/apartment/apartmentSchema';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { getProvinces, getWardsByProvinceCode } from '@/features/address/addressThunk';
+import { Spinner } from '@/components/ui/spinner';
 
 type Item = {
   label: string;
   value: string;
 };
-//   {
-//     label: 'Mạng wifi',
-//     value: 'wifi',
-//   },
-//   {
-//     label: 'Chỗ để xe',
-//     value: 'parking',
-//   },
-//   {
-//     label: 'Camera an ninh',
-//     value: 'camera',
-//   },
-//   {
-//     label: 'Bảo vệ',
-//     value: 'security',
-//   },
-//   {
-//     label: 'Máy giặt',
-//     value: 'elevator',
-//   },
-//   {
-//     label: 'Thang máy',
-//     value: 'laundry',
-//   },
-//   {
-//     label: 'Khóa cửa vân tay',
-//     value: 'fingerprintLock',
-//   },
-//   {
-//     label: 'An toàn phòng cháy, chữa cháy',
-//     value: 'firePrevention',
-//   },
-// ] as const;
-
-// const STATUS = [
-//   {
-//     label: 'Hoạt động',
-//     value: 'active',
-//   },
-//   {
-//     label: 'Ngưng hoạt động',
-//     value: 'inactive',
-//   },
-//   {
-//     label: 'Tạm dừng vận hành',
-//     value: 'suspended',
-//   },
-// ] as const;
-
-// const addressSchema = z.object({
-//   // provinceCode: z.string('Mã tỉnh/thành phố là bắt buộc').min(1, 'Mã tỉnh/thành phố là bắt buộc'),
-
-//   provinceName: z.string('Tên tỉnh/thành phố là bắt buộc').min(1, 'Tên tỉnh/thành phố là bắt buộc'),
-
-//   // districtCode: z.string('Mã quận/huyện là bắt buộc').min(1, 'Mã quận/huyện là bắt buộc'),
-
-//   // districtName: z.string('Tên quận/huyện là bắt buộc').min(1, 'Tên quận/huyện là bắt buộc'),
-
-//   // wardCode: z.string('Mã phường/xã là bắt buộc').min(1, 'Mã phường/xã là bắt buộc'),
-
-//   wardName: z.string('Tên phường/xã là bắt buộc').min(1, 'Tên phường/xã là bắt buộc'),
-
-//   street: z
-//     .string('Tên đường/số nhà là bắt buộc')
-//     .trim()
-//     .min(5, 'Địa chỉ chi tiết (số nhà, tên đường) phải có ít nhất 5 ký tự'),
-// });
-
-// const contactSchema = z.object({
-//   name: z.string().min(1, 'Tên chủ nhà là bắt buộc.').trim(),
-//   phone: z
-//     .string('Số điện thoại chủ nhà là bắt buộc.')
-//     .regex(/^(0|\+84)[3-9]\d{8}$/, 'Số điện thoại không hợp lệ'),
-// });
-
-// const createApartmentFormSchema = z
-//   .object({
-//     name: z.string().min(1, 'Tên chung cư mini (tòa nhà) là bắt buộc.'),
-//     totalRooms: z
-//       .number('Tổng số phòng là bắt buộc.')
-//       .int('Tổng số phòng phải là số nguyên.')
-//       .min(1, 'Tổng số phòng phải lớn hơn hoặc bằng 1.'),
-//     availableRooms: z
-//       .number('Số phòng trống là bắt buộc.')
-//       .int('Số phòng trống phải là số nguyên.')
-//       .min(0, 'Số phòng trống phải lớn hơn 0.'),
-//     address: addressSchema,
-//     contact: contactSchema,
-//     description: z.string().max(2000, 'Mô tả không được vượt quá 2000 ký tự.').trim().optional(),
-//     amenities: z
-//       .array(
-//         z.enum(
-//           AMENITIES.map((a) => a.value),
-//           {
-//             error: () => ({
-//               message: `Tiện ích không hợp lệ. Chỉ chấp nhận: ${AMENITIES.map((a) => a.value).join(', ')}`,
-//             }),
-//           }
-//         )
-//       )
-//       .optional()
-//       .catch([]),
-//     status: z
-//       .enum(
-//         STATUS.map((s) => s.value),
-//         {
-//           error: () => ({
-//             message: `Trạng thái không hợp lệ. Chỉ chấp nhận: ${STATUS.map((s) => s.value).join(', ')}`,
-//           }),
-//         }
-//       )
-//       .catch('active'),
-//     images: z
-//       .array(z.instanceof(File))
-//       .refine(
-//         (files) => files.every((file) => file.size <= MAX_FILE_SIZE),
-//         'Ảnh phải nhỏ hơn hoặc bằng 5MB.'
-//       )
-//       .refine((files) =>
-//         files.every(
-//           (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
-//           'Chỉ chấp nhận ảnh .JPG, .PNG, .WEBP'
-//         )
-//       )
-//       .optional()
-//       .catch([]),
-//   })
-//   .refine((data) => data.availableRooms <= data.totalRooms, {
-//     message: 'Số phòng trống không được vượt quá tổng số phòng',
-//     path: ['availableRooms'],
-//   });
 
 type CreateApartmentFormValues = z.infer<typeof createApartmentFormSchema>;
 
 const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
   const {
     control,
-    register,
+    setValue,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -215,11 +87,11 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
       totalRooms: 1,
       availableRooms: 0,
       address: {
-        // provinceCode: '',
+        provinceCode: '',
         provinceName: '',
         // districtCode: '',
         // districtName: '',
-        // wardCode: '',
+        wardCode: '',
         wardName: '',
         street: '',
       },
@@ -236,11 +108,46 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
 
   const anchor = useComboboxAnchor();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isProvincesLoading, isWardsLoading, provinces, wardsByProvinceCode } = useAppSelector(
+    (state) => state.address
+  );
 
   const [openProvince, setOpenProvince] = useState<boolean>(false);
-  const [openCommune, setOpenCommune] = useState<boolean>(false);
+  const [openWard, setOpenWard] = useState<boolean>(false);
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    dispatch(getProvinces());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleProvinceSelect = (provinceCode: string) => {
+    if (!provinceCode) return;
+
+    dispatch(getWardsByProvinceCode(provinceCode));
+
+    const findProvince = (provinces || []).find(
+      (province) => province.code.toString() === provinceCode
+    );
+
+    if (findProvince) {
+      setValue('address.provinceCode', findProvince?.code.toString());
+      setValue('address.provinceName', findProvince?.name);
+    }
+  };
+
+  const handleWardSelect = (wardCode: string) => {
+    const findWard = (wardsByProvinceCode?.wards || []).find(
+      (ward) => ward.code.toString() === wardCode
+    );
+
+    if (findWard) {
+      setValue('address.wardCode', findWard?.code.toString());
+      setValue('address.wardName', findWard?.name);
+    }
+  };
 
   const onFileReject = React.useCallback((file: File, reason?: FileRejectReason) => {
     const shortName = file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name;
@@ -552,10 +459,19 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
             <Field className="grid gap-3">
               <FieldLabel htmlFor="description">Ghi chú</FieldLabel>
 
-              <Textarea
-                id="description"
-                placeholder="Nhập thông tin mô tả, ghi chú, ..."
-                {...register('description')}
+              <Controller
+                control={control}
+                name="description"
+                render={({ field }) => {
+                  return (
+                    <Textarea
+                      id="description"
+                      placeholder="Nhập thông tin mô tả, ghi chú, ..."
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  );
+                }}
               />
 
               {errors.description && (
@@ -630,10 +546,15 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
             </FieldLabel>
 
             <Controller
-              name="address.provinceName"
+              name="address.provinceCode"
               control={control}
               render={({ field }) => {
-                const selectedProvince = ([{ label: 'Hà nội', value: 'hn' }] as Item[]).find(
+                const provinceFormatted: Item[] = (provinces || []).map((province) => ({
+                  label: province.name,
+                  value: province.code.toString(),
+                }));
+
+                const selectedProvince = provinceFormatted.find(
                   (province) => province.value === field.value
                 );
 
@@ -650,9 +571,15 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                         )}
                         id="province"
                         name="province"
+                        disabled={isProvincesLoading}
                       >
                         {selectedProvince?.label ?? 'Chọn tỉnh/thành phố'}
-                        <ChevronsUpDown className="opacity-50" />
+
+                        {isProvincesLoading ? (
+                          <Spinner />
+                        ) : (
+                          <ChevronsUpDown className="opacity-50" />
+                        )}
                       </Button>
                     </PopoverTrigger>
 
@@ -663,12 +590,13 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                         <CommandList>
                           <CommandEmpty>Không có dữ liệu.</CommandEmpty>
                           <CommandGroup>
-                            {([{ label: 'Hà nội', value: 'hn' }] as Item[]).map((item) => (
+                            {provinceFormatted.map((item) => (
                               <CommandItem
                                 key={item.value}
                                 onSelect={() => {
                                   field.onChange(item.value);
                                   setOpenProvince(false);
+                                  handleProvinceSelect(item.value);
                                 }}
                               >
                                 {item.label || '...'}
@@ -689,8 +617,8 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
               }}
             />
 
-            {errors.address?.provinceName && (
-              <p className="text-destructive text-sm">{errors.address.provinceName.message}</p>
+            {errors.address?.provinceCode && (
+              <p className="text-destructive text-sm">{errors.address.provinceCode.message}</p>
             )}
           </Field>
 
@@ -701,28 +629,33 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
 
             <Controller
               control={control}
-              name="address.wardName"
+              name="address.wardCode"
               render={({ field }) => {
-                const selectedCommune = ([{ label: 'Mỹ Đình', value: '00592' }] as Item[]).find(
-                  (commune) => commune.value === field.value
-                );
+                const wardsFormatted: Item[] = (wardsByProvinceCode?.wards || []).map((ward) => ({
+                  label: ward.name,
+                  value: ward.code.toString(),
+                }));
+
+                const selectedWard = wardsFormatted.find((ward) => ward.value === field.value);
 
                 return (
-                  <Popover open={openCommune} onOpenChange={setOpenCommune}>
+                  <Popover open={openWard} onOpenChange={setOpenWard}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         role="combobox"
-                        aria-expanded={openCommune}
+                        aria-expanded={openWard}
                         className={cn(
                           'justify-between font-normal',
-                          !selectedCommune && 'text-muted-foreground'
+                          !selectedWard && 'text-muted-foreground'
                         )}
                         id="ward"
                         name="ward"
+                        disabled={isWardsLoading}
                       >
-                        {selectedCommune?.label ?? 'Chọn xã/phường'}
-                        <ChevronsUpDown className="opacity-50" />
+                        {selectedWard?.label ?? 'Chọn xã/phường'}
+
+                        {isWardsLoading ? <Spinner /> : <ChevronsUpDown className="opacity-50" />}
                       </Button>
                     </PopoverTrigger>
 
@@ -734,25 +667,24 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                           <CommandEmpty>Không có dữ liệu.</CommandEmpty>
 
                           <CommandGroup>
-                            {([{ label: 'Mỹ Đình', value: '00592' }] as Item[]).map(
-                              (item: Item) => (
-                                <CommandItem
-                                  key={item.value}
-                                  onSelect={() => {
-                                    field.onChange(item.value);
-                                    setOpenCommune(false);
-                                  }}
-                                >
-                                  {item.label ?? '...'}
-                                  <Check
-                                    className={cn(
-                                      'ml-auto',
-                                      item.value === field.value ? 'opacity-100' : 'opacity-0'
-                                    )}
-                                  />
-                                </CommandItem>
-                              )
-                            )}
+                            {wardsFormatted.map((item: Item) => (
+                              <CommandItem
+                                key={item.value}
+                                onSelect={() => {
+                                  field.onChange(item.value);
+                                  setOpenWard(false);
+                                  handleWardSelect(item.value);
+                                }}
+                              >
+                                {item.label ?? '...'}
+                                <Check
+                                  className={cn(
+                                    'ml-auto',
+                                    item.value === field.value ? 'opacity-100' : 'opacity-0'
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -762,8 +694,8 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
               }}
             />
 
-            {errors.address?.wardName && (
-              <p className="text-destructive text-sm">{errors.address?.wardName.message}</p>
+            {errors.address?.wardCode && (
+              <p className="text-destructive text-sm">{errors.address?.wardCode.message}</p>
             )}
           </Field>
 
@@ -772,7 +704,13 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
               Địa chỉ (số nhà, tên đường...) <span className="text-destructive">*</span>
             </FieldLabel>
 
-            <Input id="street" {...register('address.street')} />
+            <Controller
+              control={control}
+              name="address.street"
+              render={({ field }) => {
+                return <Input id="street" value={field.value} onChange={field.onChange} />;
+              }}
+            />
 
             {errors.address?.street && (
               <p className="text-destructive text-sm">{errors.address.street.message}</p>
