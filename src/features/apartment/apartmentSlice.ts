@@ -1,15 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getApartments } from './apartmentThunk';
+import { createApartment, getApartments } from './apartmentThunk';
 import type { Apartment } from '@/pages/ApartmentPage';
 
 interface ApartmentState {
   list: Apartment[];
   loading: boolean;
+  isSubmitting: boolean;
 }
 
 const initialState: ApartmentState = {
   list: [],
   loading: false,
+  isSubmitting: false,
 };
 
 const apartmentSlice = createSlice({
@@ -31,6 +33,17 @@ const apartmentSlice = createSlice({
       })
       .addCase(getApartments.rejected, (state) => {
         state.loading = false;
+      })
+
+      // Create apartment
+      .addCase(createApartment.pending, (state) => {
+        state.isSubmitting = true;
+      })
+      .addCase(createApartment.fulfilled, (state) => {
+        state.isSubmitting = false;
+      })
+      .addCase(createApartment.rejected, (state) => {
+        state.isSubmitting = false;
       });
   },
 });

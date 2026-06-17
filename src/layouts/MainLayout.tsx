@@ -1,5 +1,6 @@
 // Libs
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
+import { useEffect } from 'react';
 
 // Components
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
@@ -8,8 +9,16 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 import { ModeToggle } from '@/components/theme/modeToggle';
 import { cn } from '@/libs/utils';
 import { AppBreadcrumbs } from '@/components/AppBreadcrumbs';
+import { useGlobalLoading } from '@/hooks/useGlobalLoading';
 
 const MainLayout = () => {
+  const location = useLocation();
+  const { forceStopAll } = useGlobalLoading();
+
+  useEffect(() => {
+    forceStopAll();
+  }, [location.pathname]);
+
   return (
     <SidebarProvider>
       <AppSidebar />

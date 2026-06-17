@@ -16,6 +16,9 @@ import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import PublicGuard from '@/components/common/PublicGuard';
 
+// Others
+import GlobalLoading from '@/components/common/GlobalLoading';
+
 const router = createBrowserRouter([
   {
     element: <PublicGuard />,
@@ -55,6 +58,7 @@ function App() {
     <>
       <Toaster richColors position="top-right" />
       <RouterProvider router={router} />
+      <GlobalLoading />
     </>
   );
 }

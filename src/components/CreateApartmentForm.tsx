@@ -65,11 +65,9 @@ import { AMENITIES, STATUS, createApartmentFormSchema } from '@/pages/apartment/
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getProvinces, getWardsByProvinceCode } from '@/features/address/addressThunk';
 import { Spinner } from '@/components/ui/spinner';
-
-type Item = {
-  label: string;
-  value: string;
-};
+import { createApartment } from '@/features/apartment/apartmentThunk';
+import type { Item } from '@/types/common';
+import { useGlobalLoading } from '@/hooks/useGlobalLoading';
 
 type CreateApartmentFormValues = z.infer<typeof createApartmentFormSchema>;
 
@@ -79,7 +77,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
     setValue,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<CreateApartmentFormValues>({
     resolver: zodResolver(createApartmentFormSchema),
     defaultValues: {
@@ -112,6 +110,8 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
   const { isProvincesLoading, isWardsLoading, provinces, wardsByProvinceCode } = useAppSelector(
     (state) => state.address
   );
+  const { isLoading: isUploading } = useAppSelector((state) => state.upload);
+  const { startLoading, stopLoading, isLoading: isGlobalLoading } = useGlobalLoading();
 
   const [openProvince, setOpenProvince] = useState<boolean>(false);
   const [openWard, setOpenWard] = useState<boolean>(false);
@@ -172,7 +172,16 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
   }, []);
 
   const onSubmit = async (data: CreateApartmentFormValues) => {
-    console.log(data);
+    try {
+      startLoading();
+      await dispatch(createApartment(data)).unwrap();
+
+      reset();
+      navigate(PATHS.PAGE.APARTMENTS.INDEX);
+    } catch (error) {
+      console.error(error);
+      stopLoading();
+    }
   };
 
   const handleCloseForm = () => {
@@ -378,6 +387,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                       onValueChange={field.onChange}
                       onFileReject={onFileReject}
                       multiple
+                      disabled={isUploading}
                     >
                       <FileUploadDropzone>
                         <div className="flex flex-col items-center gap-4 text-center">
@@ -730,7 +740,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
           Huỷ
         </Button>
 
-        <Button type="submit" size={'lg'} form="apartmentForm" disabled={isSubmitting}>
+        <Button type="submit" size={'lg'} form="apartmentForm" disabled={isGlobalLoading}>
           Thêm chung cư
         </Button>
       </Field>
