@@ -12,9 +12,11 @@ interface Props {
 const ProtectedRoute = (props: Props) => {
   const { allowedRoles } = props;
 
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, isInitialized } = useAppSelector((state) => state.auth);
 
   const hasToken = !!tokenManager.get();
+
+  if (!isInitialized) return null;
 
   if (!hasToken || !user) {
     return <Navigate to="/auth/signin" replace />;

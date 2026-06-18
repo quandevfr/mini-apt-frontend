@@ -17,7 +17,6 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import PublicGuard from '@/components/common/PublicGuard';
 
 // Others
-import GlobalLoading from '@/components/common/GlobalLoading';
 
 const router = createBrowserRouter([
   {
@@ -56,9 +55,8 @@ const router = createBrowserRouter([
 function App() {
   return (
     <>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="bottom-right" expand={true} />
       <RouterProvider router={router} />
-      <GlobalLoading />
     </>
   );
 }
