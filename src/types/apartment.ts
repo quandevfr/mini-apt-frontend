@@ -26,3 +26,18 @@ export interface CreateApartmentReq {
 export interface CreateApartmentData extends Omit<CreateApartmentReq, 'images'> {
   images?: File[];
 }
+
+export interface GetApartmentsResponse {
+  _id: string;
+  name: string;
+  totalRooms: number;
+  availableRooms: number;
+  address: Address;
+  description: string;
+  amenities: string[];
+  contact: Contact;
+  status: string;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+}

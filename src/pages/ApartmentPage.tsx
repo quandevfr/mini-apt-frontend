@@ -1,5 +1,10 @@
 // Libs
-import { IconDotsVertical } from '@tabler/icons-react';
+import {
+  IconAlertTriangleFilled,
+  IconCircleCheckFilled,
+  IconDots,
+  IconExclamationCircleFilled,
+} from '@tabler/icons-react';
 import type { ColumnDef, useReactTable } from '@tanstack/react-table';
 
 // Components
@@ -18,21 +23,18 @@ import { useNavigate } from 'react-router';
 import { getApartments } from '@/features/apartment/apartmentThunk';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import type { RootState } from '@/store/rootReducer';
 import { PATHS } from '@/utils/constants/paths';
+import type { GetApartmentsResponse } from '@/types/apartment';
+import { Badge } from '@/components/ui/badge';
+import { formatPhoneVN } from '@/utils/helpers';
+import { cn } from '@/lib/utils';
+import { Plus } from 'lucide-react';
+import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
+import { useQueryParams } from '@/hooks/useQueryParams';
+import type { ApartmentQuery } from '@/types/query';
+import { APARTMENT_QUERY_DEFAULT } from '@/utils/constants/query';
 
-export type Apartment = {
-  id: string;
-  code: string;
-  name: string;
-  address: string;
-  numberOfRooms: number;
-  numberOfAvailableRooms: number;
-};
-
-// const data: Apartment[] = [];
-
-export const columns: ColumnDef<Apartment>[] = [
+export const columns: ColumnDef<GetApartmentsResponse>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -63,36 +65,86 @@ export const columns: ColumnDef<Apartment>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'code',
-    header: 'Code',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('code')}</div>,
-    size: 80,
-  },
-  {
     accessorKey: 'name',
     header: 'Tên chung cư mini',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('name')}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize font-semibold">{row.getValue('name') || EMPTY_CELL_VALUE}</div>
+    ),
   },
   {
     accessorKey: 'address',
     header: 'Địa chỉ',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('address')}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize">{`${row.original.address.street}, ${row.original.address.wardName}, ${row.original.address.provinceName}`}</div>
+    ),
+    minSize: 200,
   },
   {
-    accessorKey: 'numberOfRooms',
-    header: () => <div className="text-right">Số lượng phòng</div>,
-    cell: ({ row }) => {
-      return <div className="text-right">{row.getValue('numberOfRooms')}</div>;
-    },
+    accessorKey: 'totalRooms',
+    header: () => <div className="text-center">Số phòng</div>,
+    cell: ({ row }) => (
+      <div className="capitalize text-center">{row.getValue('totalRooms') ?? EMPTY_CELL_VALUE}</div>
+    ),
     size: 100,
   },
   {
-    accessorKey: 'numberOfAvailableRooms',
-    header: () => <div className="text-right">Số lượng phòng trống</div>,
+    accessorKey: 'availableRooms',
+    header: () => <div className="text-center">Còn trống</div>,
+    cell: ({ row }) => (
+      <div className="capitalize text-center">
+        {row.getValue('availableRooms') ?? EMPTY_CELL_VALUE}
+      </div>
+    ),
+    size: 100,
+  },
+  {
+    accessorKey: 'status',
+    header: () => <div className="text-left">Trạng thái</div>,
     cell: ({ row }) => {
-      return <div className="text-right font-medium">{row.getValue('numberOfAvailableRooms')}</div>;
+      const STATUS_CONFIG = {
+        active: {
+          label: 'Hoạt động',
+          className: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400 ',
+          Icon: <IconCircleCheckFilled className="text-green-500 dark:text-green-400 size-4" />,
+        },
+        inactive: {
+          label: 'Ngưng hoạt động',
+          className: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+          Icon: <IconExclamationCircleFilled className="text-red-500 dark:text-red-400 size-4" />,
+        },
+        suspended: {
+          label: 'Tạm dừng vận hành',
+          className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400',
+          Icon: <IconAlertTriangleFilled className="text-amber-500 dark:text-amber-400 size-4" />,
+        },
+      };
+
+      const status = row.original.status as keyof typeof STATUS_CONFIG;
+
+      const config = STATUS_CONFIG[status] || STATUS_CONFIG.inactive;
+
+      return (
+        <Badge
+          className={cn(
+            'flex items-center gap-1.5 px-2 py-1 capitalize w-fit font-medium pointer-events-none',
+            config.className
+          )}
+        >
+          {config.Icon}
+          <span>{config.label}</span>
+        </Badge>
+      );
     },
-    size: 130,
+  },
+  {
+    accessorKey: 'contact',
+    header: () => <div className="text-left">Quản lý</div>,
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-2">
+        <p className="font-semibold">{EMPTY_CELL_VALUE}</p>
+        <p className="text-neutral-600 font-semibold">{EMPTY_CELL_VALUE}</p>
+      </div>
+    ),
   },
   {
     id: 'actions',
@@ -108,7 +160,7 @@ export const columns: ColumnDef<Apartment>[] = [
                 className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
                 size={'icon'}
               >
-                <IconDotsVertical />
+                <IconDots />
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>
@@ -126,7 +178,7 @@ export const columns: ColumnDef<Apartment>[] = [
   },
 ];
 
-const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Apartment>>) => {
+const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartmentsResponse>>) => {
   const navigate = useNavigate();
 
   const selected = table.getSelectedRowModel().rows;
@@ -147,26 +199,41 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Apartment>>) 
         </Button>
       )}
 
-      <Button onClick={handleNavigateToCreate}>Thêm mới</Button>
+      <Button onClick={handleNavigateToCreate}>
+        <Plus /> Thêm mới
+      </Button>
     </div>
   );
 };
 
 const ApartmentPage = () => {
   const dispatch = useAppDispatch();
-  const loading = useAppSelector((state: RootState) => state.apartment.loading);
-  const list = useAppSelector((state: RootState) => state.apartment.list);
+  const { apartments, pagination, isLoading } = useAppSelector((state) => state.apartment);
+
+  const { query, setQuery } = useQueryParams<ApartmentQuery>();
+
+  const page = Number(query.page ?? APARTMENT_QUERY_DEFAULT.page);
+  const limit = Number(query.limit ?? APARTMENT_QUERY_DEFAULT.limit);
+  const search = query.search;
 
   useEffect(() => {
-    dispatch(getApartments());
-  }, [dispatch]);
+    const params = {
+      page,
+      limit,
+      search,
+    };
 
-  const handleRowClick = (apartment: Apartment) => {
+    dispatch(getApartments(params));
+  }, [dispatch, page, limit, search]);
+
+  const handleRowClick = (apartment: GetApartmentsResponse) => {
     console.log(`Clicked apartment: `, apartment);
   };
 
-  const handleQueryChange = (query: DataTableDefaultQuery) => {
-    console.log(`Query: ${JSON.stringify(query)}`);
+  const handleQueryChange = (newQuery: DataTableDefaultQuery) => {
+    console.log(`Query: ${JSON.stringify(newQuery)}`);
+
+    setQuery({ page: newQuery.page, limit: newQuery.limit, search: newQuery.search });
   };
 
   return (
@@ -178,12 +245,12 @@ const ApartmentPage = () => {
             className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
           >
             <DataTableDefault
-              data={list ?? []}
+              data={apartments || []}
               columns={columns}
-              totalCount={55}
+              totalCount={pagination.total}
               onRowClick={handleRowClick}
-              getRowId={(payment, index) => payment.id || `row-${index}`}
-              loading={loading}
+              getRowId={(payment, index) => payment._id || `row-${index}`}
+              loading={isLoading}
               renderToolbarRight={RenderToolbarRight}
               onQueryChange={handleQueryChange}
             />

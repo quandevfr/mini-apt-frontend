@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { PATHS } from '@/utils/constants/paths';
 import { tokenManager } from '@/libs/tokenManager';
 import { getErrorMessage } from '@/utils/constants/errorMessages';
+import { SUCCESS_MESSAGE } from '@/utils/constants/successMessage';
 
 const timeout = 1000 * 60 * 10;
 
@@ -61,8 +62,13 @@ axiosClient.interceptors.response.use(
   function onFulfilled(response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
-    if (response.data?.success && response.data?.message && response.config.method !== 'get') {
-      toast.success(response.data.message);
+    const { method } = response.config;
+    const successCode = response.data?.code;
+
+    if (response.data?.success && response.data?.message && successCode && method !== 'get') {
+      const successMessage =
+        SUCCESS_MESSAGE[successCode] || response.data?.message || 'Thao tác thành công 🎉';
+      toast.success(successMessage);
     }
 
     return response.data;

@@ -501,16 +501,14 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
           <CardHeader>
             <CardTitle>Liên hệ</CardTitle>
 
-            <CardDescription>
-              Thông tin liên hệ của chủ, quản lý chung cư mini (tòa nhà)
-            </CardDescription>
+            <CardDescription>Thông tin liên hệ của chủ chung cư mini (tòa nhà)</CardDescription>
           </CardHeader>
 
           <CardContent className="grid gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               <Field className="grid gap-3">
                 <FieldLabel htmlFor="contactName">
-                  Họ & Tên chủ nhà <span className="text-destructive">*</span>
+                  Họ và Tên chủ nhà <span className="text-destructive">*</span>
                 </FieldLabel>
 
                 <Controller
