@@ -105,7 +105,7 @@ export function DataTableDefault<T>({
   onQueryChange,
 }: DataTableDefaultProps<T>) {
   const [searchKey, setSearchKey] = React.useState<string>('');
-  const [debounceSearchKey] = useDebounce(searchKey, 400);
+  const [debounceSearchKey] = useDebounce(searchKey, 500);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -177,6 +177,7 @@ export function DataTableDefault<T>({
             <div className="relative max-w-sm">
               <InputGroup>
                 <InputGroupInput
+                  type="text"
                   placeholder="Tìm kiếm..."
                   onChange={(event) => setSearchKey(event.target.value)}
                 />

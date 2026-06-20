@@ -3,9 +3,11 @@ import axios, { type AxiosInstance } from 'axios';
 import { toast } from 'sonner';
 
 // Others
-import { ERROR_MESSAGE_MAP } from '@/utils/errors/errorMessages';
+// import { ERROR_MESSAGE_MAP } from '@/utils/errors/errorMessages';
 import { PATHS } from '@/utils/constants/paths';
 import { tokenManager } from '@/libs/tokenManager';
+import { getErrorMessage } from '@/utils/constants/errorMessages';
+import { SUCCESS_MESSAGE } from '@/utils/constants/successMessage';
 
 const timeout = 1000 * 60 * 10;
 
@@ -60,15 +62,30 @@ axiosClient.interceptors.response.use(
   function onFulfilled(response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
+    const { method } = response.config;
+    const successCode = response.data?.code;
+
+    if (response.data?.success && response.data?.message && successCode && method !== 'get') {
+      const successMessage =
+        SUCCESS_MESSAGE[successCode] || response.data?.message || 'Thao tác thành công 🎉';
+      toast.success(successMessage);
+    }
+
     return response.data;
   },
   async function onRejected(error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
 
+    if (!error.response) {
+      toast.error(getErrorMessage('NETWORK_ERROR'));
+      return Promise.reject(error);
+    }
+
+    const errorCode = error.response?.data?.code;
     const originalRequest = error.config;
     const status = error.response?.status;
-    const data = error.response?.data;
+    // const data = error.response?.data;
 
     const AUTH_EXCLUDE_PATHS = [
       PATHS.AUTH.SIGN_IN,
@@ -128,13 +145,16 @@ axiosClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (data?.code && ERROR_MESSAGE_MAP[data.code]) {
-      toast.error(ERROR_MESSAGE_MAP[data.code]);
-    } else if (data?.message) {
-      toast.error(data?.message);
-    } else {
-      toast.error('Có lỗi xảy ra, vui lòng thử lại!');
-    }
+    const errorMessage = getErrorMessage(errorCode);
+    toast.error(errorMessage);
+
+    // if (data?.code && ERROR_MESSAGE_MAP[data.code]) {
+    //   toast.error(ERROR_MESSAGE_MAP[data.code]);
+    // } else if (data?.message) {
+    //   toast.error(data?.message);
+    // } else {
+    //   toast.error('Có lỗi xảy ra, vui lòng thử lại!');
+    // }
 
     return Promise.reject(error);
   }

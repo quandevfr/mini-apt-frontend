@@ -1,4 +1,11 @@
 {
+  "buildCommand": "vite build",
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "preview": false
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",

@@ -1,15 +1,27 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getApartments } from './apartmentThunk';
-import type { Apartment } from '@/pages/ApartmentPage';
+import { createApartment, getApartments } from './apartmentThunk';
+import type { GetApartmentsResponse } from '@/types/apartment';
+import type { PaginationResponse } from '@/types/common';
 
 interface ApartmentState {
-  list: Apartment[];
-  loading: boolean;
+  apartments: GetApartmentsResponse[];
+  pagination: PaginationResponse;
+  isLoading: boolean;
+  isSubmitting: boolean;
 }
 
 const initialState: ApartmentState = {
-  list: [],
-  loading: false,
+  apartments: [],
+  pagination: {
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false,
+  },
+  isLoading: false,
+  isSubmitting: false,
 };
 
 const apartmentSlice = createSlice({
@@ -17,20 +29,33 @@ const apartmentSlice = createSlice({
   initialState,
   reducers: {
     clearApartment(state) {
-      state.list = [];
+      state.apartments = [];
+      state.pagination = initialState.pagination;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(getApartments.pending, (state) => {
-        state.loading = true;
+        state.isLoading = true;
       })
       .addCase(getApartments.fulfilled, (state, action) => {
-        state.loading = false;
-        state.list = action.payload;
+        state.isLoading = false;
+        state.apartments = action.payload.items;
+        state.pagination = action.payload.pagination;
       })
       .addCase(getApartments.rejected, (state) => {
-        state.loading = false;
+        state.isLoading = false;
+      })
+
+      // Create apartment
+      .addCase(createApartment.pending, (state) => {
+        state.isSubmitting = true;
+      })
+      .addCase(createApartment.fulfilled, (state) => {
+        state.isSubmitting = false;
+      })
+      .addCase(createApartment.rejected, (state) => {
+        state.isSubmitting = false;
       });
   },
 });

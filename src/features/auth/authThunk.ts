@@ -16,6 +16,7 @@ export const signIn = createAsyncThunk(
       const token = res.accessToken;
 
       tokenManager.set(token);
+      localStorage.setItem('user', JSON.stringify(res.user));
 
       return res;
     } catch {
@@ -36,13 +37,10 @@ export const signOut = createAsyncThunk('auth/signout', async (_, { rejectWithVa
 
 export const fetchMe = createAsyncThunk('auth/me', async (_, { rejectWithValue }) => {
   try {
-    const refreshRes = await authApi.refresh();
-    tokenManager.set(refreshRes.accessToken);
-
     const res = await authApi.fetchMe();
+
     return res;
   } catch {
-    tokenManager.clear();
     return rejectWithValue('fetch me failed');
   }
 });
@@ -50,8 +48,12 @@ export const fetchMe = createAsyncThunk('auth/me', async (_, { rejectWithValue }
 export const refresh = createAsyncThunk('auth/refresh', async (_, { rejectWithValue }) => {
   try {
     const res = await authApi.refresh();
+
+    tokenManager.set(res.accessToken);
+
     return res;
   } catch {
+    tokenManager.clear();
     return rejectWithValue('refresh token failed');
   }
 });
