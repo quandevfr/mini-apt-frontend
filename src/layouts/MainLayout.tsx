@@ -1,6 +1,8 @@
 // Libs
 import { Outlet, useLocation } from 'react-router';
 import { useEffect } from 'react';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 
 // Components
 import { AppSidebar } from '@/components/sidebar/app-sidebar';
@@ -11,12 +13,25 @@ import { cn } from '@/libs/utils';
 import { AppBreadcrumbs } from '@/components/AppBreadcrumbs';
 import { useGlobalLoading } from '@/hooks/useGlobalLoading';
 
+NProgress.configure({
+  showSpinner: false, // ẩn spinner góc phải
+  speed: 500, // thời gian hoàn thành animation (ms)
+  trickleSpeed: 300, // tốc độ tự động tăng (ms)
+  minimum: 0.1, // % bắt đầu (tránh bắt đầu từ 0)
+  easing: 'ease', // kiểu animation
+  trickle: true, // tự động tăng dần
+});
+
 const MainLayout = () => {
   const location = useLocation();
   const { forceStopAll } = useGlobalLoading();
 
   useEffect(() => {
+    NProgress.start();
+
     forceStopAll();
+
+    NProgress.done();
   }, [location.pathname]);
 
   return (

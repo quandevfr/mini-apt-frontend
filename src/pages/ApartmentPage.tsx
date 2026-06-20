@@ -26,7 +26,6 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { PATHS } from '@/utils/constants/paths';
 import type { GetApartmentsResponse } from '@/types/apartment';
 import { Badge } from '@/components/ui/badge';
-import { formatPhoneVN } from '@/utils/helpers';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
 import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
@@ -139,7 +138,7 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
   {
     accessorKey: 'contact',
     header: () => <div className="text-left">Quản lý</div>,
-    cell: ({ row }) => (
+    cell: () => (
       <div className="flex flex-col gap-2">
         <p className="font-semibold">{EMPTY_CELL_VALUE}</p>
         <p className="text-neutral-600 font-semibold">{EMPTY_CELL_VALUE}</p>
