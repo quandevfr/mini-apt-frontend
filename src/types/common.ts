@@ -29,3 +29,7 @@ export interface GetListParams {
   limit?: number;
   search?: string;
 }
+
+export interface DeleteManyPayload {
+  ids: string[];
+}

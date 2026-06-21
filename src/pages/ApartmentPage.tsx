@@ -20,18 +20,34 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router';
-import { getApartments } from '@/features/apartment/apartmentThunk';
-import { useEffect } from 'react';
+import {
+  deleteApartment,
+  deleteApartments,
+  getApartments,
+} from '@/features/apartment/apartmentThunk';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { PATHS } from '@/utils/constants/paths';
 import type { GetApartmentsResponse } from '@/types/apartment';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2Icon } from 'lucide-react';
 import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
 import { useQueryParams } from '@/hooks/useQueryParams';
 import type { ApartmentQuery } from '@/types/query';
 import { APARTMENT_QUERY_DEFAULT } from '@/utils/constants/query';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 export const columns: ColumnDef<GetApartmentsResponse>[] = [
   {
@@ -149,53 +165,196 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
     id: 'actions',
     enableHiding: false,
     size: 50,
-    cell: () => {
+    cell: ({ row }) => {
       return (
-        <div className=" flex items-center justify-end pr-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                size={'icon'}
-              >
-                <IconDots />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-              <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">Xoá</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div onClick={(e) => e.stopPropagation()}>
+          <ActionMenu apartment={row.original} />
         </div>
       );
     },
   },
 ];
 
+const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
+  const dispatch = useAppDispatch();
+  const { query } = useQueryParams<ApartmentQuery>();
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
+
+  const page = Number(query.page ?? APARTMENT_QUERY_DEFAULT.page);
+  const limit = Number(query.limit ?? APARTMENT_QUERY_DEFAULT.limit);
+  const search = query.search;
+
+  const apartmentId = apartment._id;
+  const apartmentName = apartment.name;
+
+  const handleDeleteApartment = async () => {
+    if (!apartmentId) return;
+
+    const deletePromise = dispatch(deleteApartment(apartmentId)).unwrap();
+
+    toast.promise(deletePromise, {
+      loading: `Đang xóa ${apartmentName}...`,
+      success: () => `Đã xóa ${apartmentName}`,
+      error: () => `Xóa ${apartmentName} thất bại`,
+    });
+
+    setIsDeleteConfirm(false);
+
+    try {
+      await deletePromise;
+
+      dispatch(getApartments({ page, limit, search }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className=" flex items-center justify-end pr-2">
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+            size={'icon'}
+          >
+            <IconDots />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
+          <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={() => {
+              setIsDropdownOpen(false);
+
+              setTimeout(() => {
+                setIsDeleteConfirm(true);
+              }, 0);
+            }}
+          >
+            Xoá
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={isDeleteConfirm} onOpenChange={setIsDeleteConfirm}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+              <Trash2Icon />
+            </AlertDialogMedia>
+
+            <AlertDialogTitle>Xóa chung cư mini?</AlertDialogTitle>
+
+            <AlertDialogDescription>
+              {`Bạn có chắc chắn muốn xóa ${apartmentName} không?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel variant="outline" onClick={() => setIsDeleteConfirm(false)}>
+              Bỏ qua
+            </AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={handleDeleteApartment}>
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
 const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartmentsResponse>>) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isLoading } = useAppSelector((state) => state.apartment);
+  const { query } = useQueryParams<ApartmentQuery>();
 
+  const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
+
+  const page = Number(query.page ?? APARTMENT_QUERY_DEFAULT.page);
+  const limit = Number(query.limit ?? APARTMENT_QUERY_DEFAULT.limit);
+  const search = query.search;
   const selected = table.getSelectedRowModel().rows;
+  const ids = selected.map((s) => s.original._id).filter(Boolean) as string[];
 
   const handleNavigateToCreate = () => {
     navigate(PATHS.PAGE.APARTMENTS.CREATE);
   };
 
+  const handleDeleteApartments = async () => {
+    if (ids.length === 0) return;
+
+    const deletePromise = dispatch(deleteApartments({ ids })).unwrap();
+
+    toast.promise(deletePromise, {
+      loading: `Đang xóa ${selected.length} chung cư mini...`,
+      success: () => `Đã xóa ${selected.length} chung cư mini`,
+      error: () => `Xóa chung cư mini thất bại`,
+    });
+
+    setIsDeleteConfirm(false);
+
+    try {
+      await deletePromise;
+
+      table.resetRowSelection();
+
+      dispatch(getApartments({ page, limit, search }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="flex items-center gap-4">
       {selected.length > 0 && (
-        <Button
-          variant="destructive"
-          disabled={selected.length === 0}
-          onClick={() => console.log(selected)}
-        >
-          Xoá mục đã chọn ({selected.length})
-        </Button>
+        <>
+          <Button
+            variant="destructive"
+            size={'lg'}
+            disabled={isLoading || selected.length === 0}
+            onClick={(e) => {
+              e.preventDefault();
+              setIsDeleteConfirm(true);
+            }}
+          >
+            {`Xoá mục đã chọn (${selected.length})`}
+          </Button>
+
+          <AlertDialog open={isDeleteConfirm} onOpenChange={setIsDeleteConfirm}>
+            <AlertDialogContent size="sm">
+              <AlertDialogHeader>
+                <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                  <Trash2Icon />
+                </AlertDialogMedia>
+
+                <AlertDialogTitle>Delete chung cư mini?</AlertDialogTitle>
+
+                <AlertDialogDescription>
+                  {`Bạn có chắc chắn muốn xóa (${selected.length}) chung cư mini đã chọn không?`}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel variant="outline" onClick={() => setIsDeleteConfirm(false)}>
+                  Bỏ qua
+                </AlertDialogCancel>
+                <AlertDialogAction variant="destructive" onClick={handleDeleteApartments}>
+                  Xóa
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
       )}
 
       <Button onClick={handleNavigateToCreate}>

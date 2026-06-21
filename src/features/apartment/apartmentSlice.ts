@@ -1,5 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApartment, getApartments } from './apartmentThunk';
+import {
+  createApartment,
+  deleteApartment,
+  deleteApartments,
+  getApartments,
+} from './apartmentThunk';
 import type { GetApartmentsResponse } from '@/types/apartment';
 import type { PaginationResponse } from '@/types/common';
 
@@ -56,6 +61,28 @@ const apartmentSlice = createSlice({
       })
       .addCase(createApartment.rejected, (state) => {
         state.isSubmitting = false;
+      })
+
+      // Delete apartment
+      .addCase(deleteApartment.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteApartment.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(deleteApartment.rejected, (state) => {
+        state.isLoading = false;
+      })
+
+      // Delete apartments
+      .addCase(deleteApartments.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteApartments.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(deleteApartments.rejected, (state) => {
+        state.isLoading = false;
       });
   },
 });
