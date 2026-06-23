@@ -11,7 +11,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import { NavMain } from '@/components/sidebar/nav-main';
+// import { NavMain } from '@/components/sidebar/nav-main';
 import { NavUser } from '@/components/sidebar/nav-user';
 import {
   Sidebar,
@@ -36,6 +36,8 @@ const data = {
     email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
+  // Nhóm 1: Tổng quan
+  navOverviewGroupName: 'Tổng quan',
   navOverview: [
     {
       title: 'Thống kê',
@@ -46,6 +48,39 @@ const data = {
       title: 'Gửi thông báo',
       url: PATHS.PAGE.SENT_MESSAGE,
       icon: MessageCircleMore,
+    },
+  ],
+  // Nhóm 2: Vận hành & con người
+  navManagementGroupName: 'Quản lý vận hành',
+  navManagement: [
+    {
+      title: 'Chung cư mini',
+      url: PATHS.PAGE.APARTMENTS.INDEX,
+      icon: Building,
+    },
+    {
+      title: 'Phòng',
+      url: PATHS.PAGE.ROOMS.INDEX,
+      icon: BedDouble,
+    },
+    {
+      title: 'Khách thuê',
+      url: PATHS.PAGE.TENANTS.INDEX,
+      icon: Users,
+    },
+  ],
+  // Nhóm 3: Tài chính & chăm sóc khách hàng
+  navFinanceAndSupportGroupName: 'Tài chính & Yêu cầu',
+  navFinanceAndSupport: [
+    {
+      title: 'Hóa đơn thanh toán',
+      url: PATHS.PAGE.INVOICES,
+      icon: FileText,
+    },
+    {
+      title: 'Yêu cầu / Báo hỏng',
+      url: PATHS.PAGE.REQUEST,
+      icon: FileX,
     },
   ],
   navMain: [
@@ -140,8 +175,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent className="beautiful-scrollbar">
-        <NavMainButton items={data.navOverview} />
-        <NavMain items={data.navMain} />
+        <NavMainButton items={data.navOverview} groupName={data.navOverviewGroupName} />
+        <NavMainButton items={data.navManagement} groupName={data.navManagementGroupName} />
+        <NavMainButton
+          items={data.navFinanceAndSupport}
+          groupName={data.navFinanceAndSupportGroupName}
+        />
+        {/* <NavMain items={data.navMain} /> */}
       </SidebarContent>
 
       <SidebarFooter>

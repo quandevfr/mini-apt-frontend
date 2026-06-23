@@ -6,12 +6,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { useLocation } from 'react-router';
 import { CustomLink } from '@/components/common/CustomLink';
+import { cn } from '@/lib/utils';
 
 export function NavMainButton({
   items,
+  groupName,
 }: {
   items: {
     title: string;
@@ -23,12 +26,15 @@ export function NavMainButton({
       url: string;
     }[];
   }[];
+  groupName?: string;
 }) {
   const location = useLocation();
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Tổng quan</SidebarGroupLabel>
+      {!!groupName && !isCollapsed && <SidebarGroupLabel>{groupName}</SidebarGroupLabel>}
       <SidebarMenu>
         {items.map((item) => {
           const isActive =
@@ -40,10 +46,28 @@ export function NavMainButton({
                 size={'lg'}
                 asChild
                 className={isActive ? 'bg-sidebar-accent' : ''}
+                tooltip={item.title}
               >
-                <CustomLink to={item.url}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+                <CustomLink to={item.url} className={cn('relative flex items-center')}>
+                  <div
+                    className={cn(
+                      isCollapsed && 'size-8',
+                      ' flex items-center justify-center shrink-0 transition-all ease-in-out'
+                    )}
+                  >
+                    {item.icon && <item.icon className={cn('size-4')} />}
+                  </div>
+
+                  <span
+                    className={cn(
+                      isCollapsed
+                        ? 'absolute opacity-0 invisible max-w-0 pointer-events-none'
+                        : 'block opacity-100 visible max-w-auto',
+                      'transition-all ease-in-out flex-1'
+                    )}
+                  >
+                    {item.title}
+                  </span>
                 </CustomLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
