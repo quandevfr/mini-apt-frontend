@@ -14,6 +14,12 @@ export const apartmentApi = {
     return axiosClient.get('/v1/apartments', { params, withCredentials: true });
   },
 
+  getApartmentById: async (id: string): Promise<ApiResponse<GetApartmentsResponse>> => {
+    return axiosClient.get(`/v1/apartments/${id}`, {
+      withCredentials: true,
+    });
+  },
+
   deleteById: async (id: string): Promise<ApiResponse<void>> => {
     return axiosClient.delete(`/v1/apartments/${id}`, {
       headers: { 'Skip-Show_Toast': 'true' },
@@ -27,5 +33,9 @@ export const apartmentApi = {
       headers: { 'Skip-Show_Toast': 'true' },
       withCredentials: true,
     });
+  },
+
+  updateApartment: async (id: string, body: Partial<CreateApartmentReq>) => {
+    return axiosClient.patch(`/v1/apartments/${id}`, body, { withCredentials: true });
   },
 };

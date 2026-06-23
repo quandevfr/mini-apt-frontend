@@ -27,6 +27,10 @@ export interface CreateApartmentData extends Omit<CreateApartmentReq, 'images'> 
   images?: File[];
 }
 
+export type UpdateApartmentData = Partial<CreateApartmentData> & {
+  existingImages?: string[];
+};
+
 export interface GetApartmentsResponse {
   _id: string;
   name: string;

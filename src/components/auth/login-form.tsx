@@ -2,7 +2,7 @@
 import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -18,6 +18,7 @@ import { cn } from '@/libs/utils';
 import { useAppDispatch } from '@/store/hooks';
 import { signIn } from '@/features/auth/authThunk';
 import { PATHS } from '@/utils/constants/paths';
+import { CustomLink } from '@/components/common/CustomLink';
 
 const signInSchema = z.object({
   email: z.email('Email không hợp lệ.'),
@@ -89,12 +90,12 @@ export const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>)
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Mật khẩu</Label>
-              <Link
+              <CustomLink
                 to={PATHS.AUTH.FORGOT_PASSWORD}
                 className="ml-auto text-sm underline-offset-4 hover:underline"
               >
                 Quên mật khẩu?
-              </Link>
+              </CustomLink>
             </div>
             <div className="relative">
               <Input

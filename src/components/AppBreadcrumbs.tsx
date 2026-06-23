@@ -1,5 +1,5 @@
 // Libs
-import { Link, useMatches } from 'react-router';
+import { useMatches } from 'react-router';
 import { Fragment } from 'react/jsx-runtime';
 
 // Components
@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from './ui/breadcrumb';
+import { CustomLink } from '@/components/common/CustomLink';
 
 type BreadcrumbHandle = {
   breadcrumb: React.ReactNode;
@@ -39,7 +40,7 @@ export const AppBreadcrumbs = () => {
                   <BreadcrumbPage>{match.handle.breadcrumb}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <Link to={match.pathname}>{match.handle.breadcrumb}</Link>
+                    <CustomLink to={match.pathname}>{match.handle.breadcrumb}</CustomLink>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

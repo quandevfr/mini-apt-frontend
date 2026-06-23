@@ -24,10 +24,10 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { NavMainButton } from './nav-main-button';
-import { Link } from 'react-router';
 import miniAptLogo from '@/assets/logo/mini-apt-logo.png';
 import { PATHS } from '@/utils/constants/paths';
 import { useAppSelector } from '@/store/hooks';
+import { CustomLink } from '@/components/common/CustomLink';
 
 // This is sample data.
 const data = {
@@ -125,7 +125,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to={PATHS.PAGE.DASHBOARD}>
+              <CustomLink to={PATHS.PAGE.DASHBOARD}>
                 <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <img src={miniAptLogo} alt="logo" className="" />
                 </div>
@@ -133,7 +133,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="font-medium">Mini Apartment</span>
                   <span className="">v1.0.0</span>
                 </div>
-              </Link>
+              </CustomLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

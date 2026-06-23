@@ -7,7 +7,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Link, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
+import { CustomLink } from '@/components/common/CustomLink';
 
 export function NavMainButton({
   items,
@@ -40,10 +41,10 @@ export function NavMainButton({
                 asChild
                 className={isActive ? 'bg-sidebar-accent' : ''}
               >
-                <Link to={item.url}>
+                <CustomLink to={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                </Link>
+                </CustomLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           );

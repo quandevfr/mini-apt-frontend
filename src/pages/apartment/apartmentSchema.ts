@@ -137,4 +137,6 @@ const createApartmentFormSchema = z
     path: ['availableRooms'],
   });
 
-export { createApartmentFormSchema, AMENITIES, STATUS };
+const updateApartmentFormSchema = createApartmentFormSchema.partial();
+
+export { createApartmentFormSchema, updateApartmentFormSchema, AMENITIES, STATUS };

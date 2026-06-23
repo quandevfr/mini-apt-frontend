@@ -3,7 +3,7 @@ import React from 'react';
 import z from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 // Components
 import { Button } from '../ui/button';
@@ -16,6 +16,7 @@ import { cn } from '@/libs/utils';
 import { useAuthFlow } from '@/hooks/useAuthFlow';
 import { Loader2 } from 'lucide-react';
 import { PATHS } from '@/utils/constants/paths';
+import { CustomLink } from '@/components/common/CustomLink';
 
 const verifyOPTSchema = z.object({
   otp: z.string().length(6, 'OTP phải có 6 chữ số.').regex(/^\d+$/, 'OTP chỉ chứa số.'),
@@ -91,9 +92,9 @@ const VerifyOTPForm = ({ className, ...props }: React.ComponentProps<'form'>) =>
 
           <FieldDescription className="text-center">
             Bạn không nhận được mã?{' '}
-            <Link to={'#'} onClick={handleResendOTP}>
+            <CustomLink to={'#'} onClick={handleResendOTP}>
               Gửi lại
-            </Link>
+            </CustomLink>
           </FieldDescription>
         </div>
       </form>

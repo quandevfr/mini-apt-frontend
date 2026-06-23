@@ -6,7 +6,11 @@ import { apartmentApi } from '@/apis/apartmentApi';
 import { uploadApi } from '@/apis/uploadApi';
 
 // Others
-import type { CreateApartmentData, CreateApartmentReq } from '@/types/apartment';
+import type {
+  CreateApartmentData,
+  CreateApartmentReq,
+  UpdateApartmentData,
+} from '@/types/apartment';
 import type { ApartmentQuery } from '@/types/query';
 import type { DeleteManyPayload } from '@/types/common';
 
@@ -54,6 +58,19 @@ export const getApartments = createAsyncThunk(
   }
 );
 
+export const getApartmentById = createAsyncThunk(
+  'apartments/getById',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await apartmentApi.getApartmentById(id);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('get apartment detail failed');
+    }
+  }
+);
+
 export const deleteApartment = createAsyncThunk(
   'apartments/delete',
   async (id: string, { rejectWithValue }) => {
@@ -76,6 +93,34 @@ export const deleteApartments = createAsyncThunk(
       return res.data;
     } catch {
       return rejectWithValue('delete apartments failed');
+    }
+  }
+);
+
+export const updateApartment = createAsyncThunk(
+  'apartments/update',
+  async ({ id, body }: { id: string; body: UpdateApartmentData }, { rejectWithValue }) => {
+    try {
+      let newImageUrls: string[] = [];
+
+      if (body.images && body.images.length > 0) {
+        const formData = new FormData();
+        body.images.forEach((file) => formData.append('images', file));
+
+        const uploadRes = await uploadApi.upload(formData);
+        newImageUrls = uploadRes.data;
+      }
+
+      const newBody: Partial<CreateApartmentReq> = {
+        ...body,
+        images: [...(body.existingImages ?? []), ...newImageUrls],
+      };
+
+      const res = await apartmentApi.updateApartment(id, newBody);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('update apartments failed');
     }
   }
 );

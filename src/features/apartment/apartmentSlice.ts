@@ -3,7 +3,9 @@ import {
   createApartment,
   deleteApartment,
   deleteApartments,
+  getApartmentById,
   getApartments,
+  updateApartment,
 } from './apartmentThunk';
 import type { GetApartmentsResponse } from '@/types/apartment';
 import type { PaginationResponse } from '@/types/common';
@@ -11,8 +13,10 @@ import type { PaginationResponse } from '@/types/common';
 interface ApartmentState {
   apartments: GetApartmentsResponse[];
   pagination: PaginationResponse;
+  apartmentDetails: GetApartmentsResponse | null;
   isLoading: boolean;
   isSubmitting: boolean;
+  isDetailLoading: boolean;
 }
 
 const initialState: ApartmentState = {
@@ -25,8 +29,10 @@ const initialState: ApartmentState = {
     hasNext: false,
     hasPrev: false,
   },
+  apartmentDetails: null,
   isLoading: false,
   isSubmitting: false,
+  isDetailLoading: false,
 };
 
 const apartmentSlice = createSlice({
@@ -40,6 +46,7 @@ const apartmentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Get all
       .addCase(getApartments.pending, (state) => {
         state.isLoading = true;
       })
@@ -50,6 +57,18 @@ const apartmentSlice = createSlice({
       })
       .addCase(getApartments.rejected, (state) => {
         state.isLoading = false;
+      })
+
+      // Get by id
+      .addCase(getApartmentById.pending, (state) => {
+        state.isDetailLoading = true;
+      })
+      .addCase(getApartmentById.fulfilled, (state, action) => {
+        state.isDetailLoading = false;
+        state.apartmentDetails = action.payload;
+      })
+      .addCase(getApartmentById.rejected, (state) => {
+        state.isDetailLoading = false;
       })
 
       // Create apartment
@@ -83,6 +102,17 @@ const apartmentSlice = createSlice({
       })
       .addCase(deleteApartments.rejected, (state) => {
         state.isLoading = false;
+      })
+
+      // Update apartments
+      .addCase(updateApartment.pending, (state) => {
+        state.isSubmitting = true;
+      })
+      .addCase(updateApartment.fulfilled, (state) => {
+        state.isSubmitting = false;
+      })
+      .addCase(updateApartment.rejected, (state) => {
+        state.isSubmitting = false;
       });
   },
 });

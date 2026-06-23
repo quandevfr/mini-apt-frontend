@@ -2,7 +2,6 @@
 import {
   IconAlertTriangleFilled,
   IconCircleCheckFilled,
-  IconDots,
   IconExclamationCircleFilled,
 } from '@tabler/icons-react';
 import type { ColumnDef, useReactTable } from '@tanstack/react-table';
@@ -19,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { useNavigate } from 'react-router';
 import {
   deleteApartment,
   deleteApartments,
@@ -31,7 +29,7 @@ import { PATHS } from '@/utils/constants/paths';
 import type { GetApartmentsResponse } from '@/types/apartment';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2Icon } from 'lucide-react';
+import { MoreHorizontalIcon, Plus, Trash2Icon } from 'lucide-react';
 import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
 import { useQueryParams } from '@/hooks/useQueryParams';
 import type { ApartmentQuery } from '@/types/query';
@@ -48,6 +46,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { useCustomNavigate } from '@/hooks/useCustomNavigate';
 
 export const columns: ColumnDef<GetApartmentsResponse>[] = [
   {
@@ -177,6 +176,7 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
 
 const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
   const dispatch = useAppDispatch();
+  const appNavigate = useCustomNavigate();
   const { query } = useQueryParams<ApartmentQuery>();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -211,6 +211,12 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
     }
   };
 
+  const handleUpdateApartment = () => {
+    if (!apartmentId) return;
+
+    appNavigate(`/apartments/${apartmentId}`);
+  };
+
   return (
     <div className=" flex items-center justify-end pr-2">
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
@@ -220,14 +226,30 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
             className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
             size={'icon'}
           >
-            <IconDots />
+            <MoreHorizontalIcon />
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-          <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
+        <DropdownMenuContent
+          align="end"
+          className="w-32"
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <DropdownMenuItem>Chi tiết</DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+
+              setIsDropdownOpen(false);
+
+              handleUpdateApartment();
+            }}
+          >
+            Chỉnh sửa
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             variant="destructive"
@@ -273,7 +295,7 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
 };
 
 const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartmentsResponse>>) => {
-  const navigate = useNavigate();
+  const appNavigate = useCustomNavigate();
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state) => state.apartment);
   const { query } = useQueryParams<ApartmentQuery>();
@@ -287,7 +309,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
   const ids = selected.map((s) => s.original._id).filter(Boolean) as string[];
 
   const handleNavigateToCreate = () => {
-    navigate(PATHS.PAGE.APARTMENTS.CREATE);
+    appNavigate(PATHS.PAGE.APARTMENTS.CREATE);
   };
 
   const handleDeleteApartments = async () => {
