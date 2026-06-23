@@ -11,7 +11,7 @@ import {
   Users,
 } from 'lucide-react';
 
-import { NavMain } from '@/components/sidebar/nav-main';
+// import { NavMain } from '@/components/sidebar/nav-main';
 import { NavUser } from '@/components/sidebar/nav-user';
 import {
   Sidebar,
@@ -24,10 +24,10 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { NavMainButton } from './nav-main-button';
-import { Link } from 'react-router';
 import miniAptLogo from '@/assets/logo/mini-apt-logo.png';
 import { PATHS } from '@/utils/constants/paths';
 import { useAppSelector } from '@/store/hooks';
+import { CustomLink } from '@/components/common/CustomLink';
 
 // This is sample data.
 const data = {
@@ -36,6 +36,8 @@ const data = {
     email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
+  // Nhóm 1: Tổng quan
+  navOverviewGroupName: 'Tổng quan',
   navOverview: [
     {
       title: 'Thống kê',
@@ -46,6 +48,39 @@ const data = {
       title: 'Gửi thông báo',
       url: PATHS.PAGE.SENT_MESSAGE,
       icon: MessageCircleMore,
+    },
+  ],
+  // Nhóm 2: Vận hành & con người
+  navManagementGroupName: 'Quản lý vận hành',
+  navManagement: [
+    {
+      title: 'Chung cư mini',
+      url: PATHS.PAGE.APARTMENTS.INDEX,
+      icon: Building,
+    },
+    {
+      title: 'Phòng',
+      url: PATHS.PAGE.ROOMS.INDEX,
+      icon: BedDouble,
+    },
+    {
+      title: 'Khách thuê',
+      url: PATHS.PAGE.TENANTS.INDEX,
+      icon: Users,
+    },
+  ],
+  // Nhóm 3: Tài chính & chăm sóc khách hàng
+  navFinanceAndSupportGroupName: 'Tài chính & Yêu cầu',
+  navFinanceAndSupport: [
+    {
+      title: 'Hóa đơn thanh toán',
+      url: PATHS.PAGE.INVOICES,
+      icon: FileText,
+    },
+    {
+      title: 'Yêu cầu / Báo hỏng',
+      url: PATHS.PAGE.REQUEST,
+      icon: FileX,
     },
   ],
   navMain: [
@@ -125,7 +160,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to={PATHS.PAGE.DASHBOARD}>
+              <CustomLink to={PATHS.PAGE.DASHBOARD}>
                 <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <img src={miniAptLogo} alt="logo" className="" />
                 </div>
@@ -133,15 +168,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="font-medium">Mini Apartment</span>
                   <span className="">v1.0.0</span>
                 </div>
-              </Link>
+              </CustomLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent className="beautiful-scrollbar">
-        <NavMainButton items={data.navOverview} />
-        <NavMain items={data.navMain} />
+        <NavMainButton items={data.navOverview} groupName={data.navOverviewGroupName} />
+        <NavMainButton items={data.navManagement} groupName={data.navManagementGroupName} />
+        <NavMainButton
+          items={data.navFinanceAndSupport}
+          groupName={data.navFinanceAndSupportGroupName}
+        />
+        {/* <NavMain items={data.navMain} /> */}
       </SidebarContent>
 
       <SidebarFooter>

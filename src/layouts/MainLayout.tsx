@@ -27,11 +27,11 @@ const MainLayout = () => {
   const { forceStopAll } = useGlobalLoading();
 
   useEffect(() => {
-    NProgress.start();
-
     forceStopAll();
 
     NProgress.done();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   return (

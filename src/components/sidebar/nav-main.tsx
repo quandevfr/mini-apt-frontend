@@ -11,7 +11,8 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import { Link, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
+import { CustomLink } from '@/components/common/CustomLink';
 
 export function NavMain({
   items,
@@ -65,9 +66,9 @@ export function NavMain({
                             asChild
                             className={isActive ? 'bg-sidebar-accent' : ''}
                           >
-                            <Link to={subItem.url}>
+                            <CustomLink to={subItem.url}>
                               <span>{subItem.title}</span>
-                            </Link>
+                            </CustomLink>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       );

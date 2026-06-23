@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router';
+import { CustomLink } from '@/components/common/CustomLink';
 
 export type Request = {
   id: string;
@@ -108,9 +108,9 @@ export const columns: ColumnDef<Request>[] = [
     accessorKey: 'image',
     header: 'Hình ảnh',
     cell: ({ row }) => (
-      <Link to={'#'} className="truncate">
+      <CustomLink to={'#'} className="truncate">
         {row.getValue('image')}
-      </Link>
+      </CustomLink>
     ),
   },
   {

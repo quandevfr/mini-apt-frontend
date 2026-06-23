@@ -2,10 +2,10 @@
 import { Check, ChevronsUpDown, CloudUpload, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import * as z from 'zod';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 // Components
 import { Button } from './ui/button';
@@ -53,7 +53,13 @@ import {
   FileUploadTrigger,
   FileUploadDropzone,
 } from '@/components/ui/file-upload';
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { EmptyMedia } from '@/components/ui/empty';
 
 // Others
@@ -61,47 +67,64 @@ import { PATHS } from '@/utils/constants/paths';
 import { MAX_FILE_SIZE } from '@/utils/constants/file';
 import { FileRejectReason } from '@/utils/enums/file';
 import { cn } from '@/libs/utils';
-import { AMENITIES, STATUS, createApartmentFormSchema } from '@/pages/apartment/apartmentSchema';
+import {
+  AMENITIES,
+  STATUS,
+  createApartmentFormSchema,
+  updateApartmentFormSchema,
+} from '@/pages/apartment/apartmentSchema';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getProvinces, getWardsByProvinceCode } from '@/features/address/addressThunk';
 import { Spinner } from '@/components/ui/spinner';
-import { createApartment } from '@/features/apartment/apartmentThunk';
+import {
+  createApartment,
+  getApartmentById,
+  updateApartment,
+} from '@/features/apartment/apartmentThunk';
 import type { Item } from '@/types/common';
 import { useGlobalLoading } from '@/hooks/useGlobalLoading';
+import CreateApartmentFormSkeleton from '@/components/skeleton/CreateApartmentFormSkeleton';
 
 type CreateApartmentFormValues = z.infer<typeof createApartmentFormSchema>;
 
+const initialValues = {
+  name: '',
+  totalRooms: 1,
+  availableRooms: 0,
+  address: {
+    provinceCode: '',
+    provinceName: '',
+    // districtCode: '',
+    // districtName: '',
+    wardCode: '',
+    wardName: '',
+    street: '',
+  },
+  contact: {
+    name: '',
+    phone: '',
+  },
+  description: '',
+  amenities: [],
+  status: 'active',
+  images: [],
+} as unknown as CreateApartmentFormValues;
+
 const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
+  const { id: apartmentId } = useParams();
+  const isUpdate = !!apartmentId;
+
   const {
     control,
     setValue,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, dirtyFields, isDirty },
   } = useForm<CreateApartmentFormValues>({
-    resolver: zodResolver(createApartmentFormSchema),
-    defaultValues: {
-      name: '',
-      totalRooms: 1,
-      availableRooms: 0,
-      address: {
-        provinceCode: '',
-        provinceName: '',
-        // districtCode: '',
-        // districtName: '',
-        wardCode: '',
-        wardName: '',
-        street: '',
-      },
-      contact: {
-        name: '',
-        phone: '',
-      },
-      description: '',
-      amenities: [],
-      status: 'active',
-      images: [],
-    },
+    resolver: zodResolver(
+      isUpdate ? updateApartmentFormSchema : createApartmentFormSchema
+    ) as Resolver<CreateApartmentFormValues>,
+    defaultValues: initialValues,
   });
 
   const anchor = useComboboxAnchor();
@@ -110,6 +133,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
   const { isProvincesLoading, isWardsLoading, provinces, wardsByProvinceCode } = useAppSelector(
     (state) => state.address
   );
+  const { isDetailLoading, apartmentDetails } = useAppSelector((state) => state.apartment);
   const { isLoading: isUploading } = useAppSelector((state) => state.upload);
   const { startLoading, stopLoading, isLoading: isGlobalLoading } = useGlobalLoading();
 
@@ -117,11 +141,35 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
   const [openWard, setOpenWard] = useState<boolean>(false);
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   useEffect(() => {
-    dispatch(getProvinces());
+    const fetchInitialData = async () => {
+      startLoading();
+
+      dispatch(getProvinces());
+
+      if (isUpdate) {
+        const result = await dispatch(getApartmentById(apartmentId!)).unwrap();
+
+        await dispatch(getWardsByProvinceCode(result?.address.provinceCode));
+
+        setExistingImages(result.images ?? []);
+        reset({
+          ...(result as unknown as CreateApartmentFormValues),
+          images: [],
+        });
+      } else {
+        setExistingImages([]);
+        reset(initialValues);
+      }
+
+      stopLoading();
+    };
+
+    fetchInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isUpdate, apartmentId, reset]);
 
   const handleProvinceSelect = (provinceCode: string) => {
     if (!provinceCode) return;
@@ -171,12 +219,31 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
     toast.error('Tải ảnh không hợp lệ', { description });
   }, []);
 
+  const handleRemoveExistingImage = (url: string) => {
+    setExistingImages((prev) => prev.filter((img) => img !== url));
+  };
+
   const onSubmit = async (data: CreateApartmentFormValues) => {
     try {
       startLoading();
-      await dispatch(createApartment(data)).unwrap();
 
-      reset();
+      if (isUpdate) {
+        const changedData = Object.fromEntries(
+          Object.keys(dirtyFields).map((key) => [key, data[key as keyof CreateApartmentFormValues]])
+        );
+
+        await dispatch(
+          updateApartment({
+            id: apartmentId,
+            body: { ...changedData, existingImages, images: data.images },
+          })
+        ).unwrap();
+      } else {
+        await dispatch(createApartment(data)).unwrap();
+
+        reset();
+      }
+
       navigate(PATHS.PAGE.APARTMENTS.INDEX);
     } catch (error) {
       console.error(error);
@@ -188,6 +255,8 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
     reset();
     navigate(PATHS.PAGE.APARTMENTS.INDEX);
   };
+
+  if (isUpdate && isDetailLoading) return <CreateApartmentFormSkeleton />;
 
   return (
     <form
@@ -416,7 +485,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                           </FileUploadTrigger>
                         </FileUploadDropzone>
 
-                        <FileUploadList>
+                        <FileUploadList orientation="horizontal">
                           {field.value?.map((file: File, index: number) => {
                             const preview = URL.createObjectURL(file);
 
@@ -440,6 +509,36 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                             );
                           })}
                         </FileUploadList>
+
+                        {existingImages && existingImages.length > 0 && (
+                          <div className={cn('flex items-center gap-2.5 rounded-md border p-3')}>
+                            {existingImages?.map((url: string, index: number) => {
+                              return (
+                                <div key={index} className={cn('relative')}>
+                                  <img
+                                    src={url}
+                                    alt="img"
+                                    className={cn(
+                                      'size-20 rounded border bg-accent/50 object-cover'
+                                    )}
+                                    onClick={() => setPreviewUrl(url)}
+                                  />
+
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className={cn(
+                                      'size-6 absolute top-[5px] right-[5px] bg-black/60'
+                                    )}
+                                    onClick={() => handleRemoveExistingImage(url)}
+                                  >
+                                    <X />
+                                  </Button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </FileUpload>
                     );
                   }}
@@ -447,22 +546,26 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
 
                 {/* Preview dialog */}
                 <Dialog open={!!previewUrl} onOpenChange={() => setPreviewUrl(null)}>
-                  <DialogContent className="max-w-3xl p-6">
-                    <DialogTitle>
-                      <span className="sr-only">Xem ảnh chung cư mini</span>
-                    </DialogTitle>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
+                        <span className="sr-only">Xem ảnh chung cư mini</span>
+                      </DialogTitle>
 
-                    <DialogDescription>
-                      <span className="sr-only">Bản xem trước ảnh chung cư mini phóng to</span>
-                    </DialogDescription>
+                      <DialogDescription>
+                        <span className="sr-only">Bản xem trước ảnh chung cư mini phóng to</span>
+                      </DialogDescription>
+                    </DialogHeader>
 
-                    {previewUrl && (
-                      <img
-                        src={previewUrl}
-                        alt="Preview apartment"
-                        className="w-full h-full object-contain"
-                      />
-                    )}
+                    <div className="-mx-4 no-scrollbar max-h-[80vh] overflow-y-auto px-4">
+                      {previewUrl && (
+                        <img
+                          src={previewUrl}
+                          alt="Preview apartment"
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
                   </DialogContent>
                 </Dialog>
 
@@ -745,12 +848,22 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
             Huỷ
           </Button>
 
-          <Button type="submit" size={'lg'} form="apartmentForm" disabled={isGlobalLoading}>
+          <Button
+            type="submit"
+            size={'lg'}
+            form="apartmentForm"
+            disabled={
+              isGlobalLoading ||
+              (!isDirty && existingImages.length === apartmentDetails?.images.length)
+            }
+          >
             {isGlobalLoading ? (
               <>
                 <Spinner />
-                Đang thêm mới...
+                {isUpdate ? 'Đang lưu...' : 'Đang thêm mới...'}
               </>
+            ) : isUpdate ? (
+              'Lưu thay đổi'
             ) : (
               'Thêm chung cư'
             )}

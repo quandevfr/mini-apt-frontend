@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 // Components
 import { Label } from '../ui/label';
@@ -15,6 +15,7 @@ import { cn } from '@/libs/utils';
 import { useAuthFlow } from '@/hooks/useAuthFlow';
 import { Loader2 } from 'lucide-react';
 import { PATHS } from '@/utils/constants/paths';
+import { CustomLink } from '@/components/common/CustomLink';
 
 const forgotPasswordSchema = z.object({
   email: z.email('Email không hợp lệ.'),
@@ -69,9 +70,9 @@ const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps<'form'
       </div>
 
       <div className="text-center text-sm">
-        <Link to={PATHS.AUTH.SIGN_IN} className="underline underline-offset-4">
+        <CustomLink to={PATHS.AUTH.SIGN_IN} className="underline underline-offset-4">
           Quay lại đăng nhập
-        </Link>
+        </CustomLink>
       </div>
     </form>
   );

@@ -64,8 +64,15 @@ axiosClient.interceptors.response.use(
     // Do something with response data
     const { method } = response.config;
     const successCode = response.data?.code;
+    const isSkip = response.config.headers?.['Skip-Show_Toast'] === 'true';
 
-    if (response.data?.success && response.data?.message && successCode && method !== 'get') {
+    if (
+      response.data?.success &&
+      response.data?.message &&
+      successCode &&
+      method !== 'get' &&
+      !isSkip
+    ) {
       const successMessage =
         SUCCESS_MESSAGE[successCode] || response.data?.message || 'Thao tác thành công 🎉';
       toast.success(successMessage);

@@ -1,12 +1,13 @@
 // Libs
 import { GalleryVerticalEnd } from 'lucide-react';
-import { Link, Outlet } from 'react-router';
+import { Outlet } from 'react-router';
 
 // Images
 import placeholderSignIn from '@/assets/auth/placeholderSignIn.png';
 
 // Others
 import { AuthFlowProvider } from '@/context/AuthFlowContext';
+import { CustomLink } from '@/components/common/CustomLink';
 
 const AuthLayout = () => {
   return (
@@ -14,12 +15,12 @@ const AuthLayout = () => {
       <div className="grid min-h-svh lg:grid-cols-2">
         <div className="flex flex-col gap-4 p-6 md:p-10">
           <div className="flex justify-center gap-2 md:justify-start">
-            <Link to="#" className="flex items-center gap-2 font-medium">
+            <CustomLink to="#" className="flex items-center gap-2 font-medium">
               <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
                 <GalleryVerticalEnd className="size-4" />
               </div>
               Mini Apartment
-            </Link>
+            </CustomLink>
           </div>
 
           <div className="flex flex-1 items-center justify-center">
