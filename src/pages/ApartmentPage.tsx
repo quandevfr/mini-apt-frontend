@@ -214,6 +214,12 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
   const handleUpdateApartment = () => {
     if (!apartmentId) return;
 
+    appNavigate(`/apartments/${apartmentId}/edit`);
+  };
+
+  const handleViewApartmentDetail = () => {
+    if (!apartmentId) return;
+
     appNavigate(`/apartments/${apartmentId}`);
   };
 
@@ -238,7 +244,17 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
             e.preventDefault();
           }}
         >
-          <DropdownMenuItem>Chi tiết</DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+
+              setIsDropdownOpen(false);
+
+              handleViewApartmentDetail();
+            }}
+          >
+            Chi tiết
+          </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={(e) => {
               e.preventDefault();

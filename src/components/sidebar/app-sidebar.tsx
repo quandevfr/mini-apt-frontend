@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import {
   BedDouble,
@@ -22,9 +20,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { NavMainButton } from './nav-main-button';
-import miniAptLogo from '@/assets/logo/mini-apt-logo.png';
 import { PATHS } from '@/utils/constants/paths';
 import { useAppSelector } from '@/store/hooks';
 import { CustomLink } from '@/components/common/CustomLink';
@@ -153,6 +151,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAppSelector((state) => state.auth);
+  const { setOpenMobile } = useSidebar();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -160,9 +159,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <CustomLink to={PATHS.PAGE.DASHBOARD}>
-                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <img src={miniAptLogo} alt="logo" className="" />
+              <CustomLink
+                to={PATHS.PAGE.DASHBOARD}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenMobile(false);
+                }}
+              >
+                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg bg-muted">
+                  {/* <img src="" alt="logo" className="" /> */}
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-medium">Mini Apartment</span>

@@ -29,7 +29,7 @@ export function NavMainButton({
   groupName?: string;
 }) {
   const location = useLocation();
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const isCollapsed = state === 'collapsed';
 
   return (
@@ -48,7 +48,14 @@ export function NavMainButton({
                 className={isActive ? 'bg-sidebar-accent' : ''}
                 tooltip={item.title}
               >
-                <CustomLink to={item.url} className={cn('relative flex items-center')}>
+                <CustomLink
+                  to={item.url}
+                  className={cn('relative flex items-center')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMobile(false);
+                  }}
+                >
                   <div
                     className={cn(
                       isCollapsed && 'size-8',

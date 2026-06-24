@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@plugin 'tailwind-scrollbar' {
+  nocompatible: true;
+}
 
 @plugin 'tailwindcss-animate';
 @import 'tw-animate-css';
@@ -185,10 +188,6 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-
-  body {
-    @apply text-slate-800 dark:text-slate-200;
-  }
 }
 
 /* Chat App Utility Classes */
@@ -259,7 +258,9 @@
 
   /* Scrollbar */
   .beautiful-scrollbar {
-    @apply scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent dark:scrollbar-thumb-slate-600;
+    @apply scrollbar-thin;
+    @apply scrollbar-thumb-zinc-400 dark:scrollbar-thumb-zinc-600;
+    @apply scrollbar-track-transparent scrollbar-thumb-rounded-full;
   }
 
   /* Animations */
@@ -409,12 +410,22 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
+    @apply text-slate-800 dark:text-slate-200;
     @apply bg-background text-foreground;
   }
+
+  html {
+    @apply scrollbar-thin scroll-smooth;
+    @apply scrollbar-thumb-zinc-400 dark:scrollbar-thumb-zinc-600;
+    @apply scrollbar-track-transparent scrollbar-thumb-rounded-full;
+  }
+
   img {
     @apply select-none;
   }
+
   button {
     @apply cursor-pointer;
   }
