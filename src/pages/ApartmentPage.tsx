@@ -80,7 +80,7 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
   },
   {
     accessorKey: 'name',
-    header: 'Tên chung cư mini',
+    header: 'Chung cư mini',
     cell: ({ row }) => (
       <div className="capitalize font-semibold">{row.getValue('name') || EMPTY_CELL_VALUE}</div>
     ),

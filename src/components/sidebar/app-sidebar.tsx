@@ -4,6 +4,7 @@ import {
   Building,
   FileText,
   FileX,
+  GalleryVerticalEnd,
   LayoutDashboard,
   MessageCircleMore,
   Users,
@@ -166,12 +167,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   setOpenMobile(false);
                 }}
               >
-                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg bg-muted">
-                  {/* <img src="" alt="logo" className="" /> */}
+                {/* <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg bg-muted">
+                  <img src="" alt="logo" className="" />
+                </div> */}
+
+                <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md">
+                  <GalleryVerticalEnd className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-medium">Mini Apartment</span>
-                  <span className="">v1.0.0</span>
+                  <span className="text-xs text-sidebar-foreground">v1.0.0</span>
                 </div>
               </CustomLink>
             </SidebarMenuButton>

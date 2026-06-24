@@ -2,21 +2,50 @@
 // import RequestList from '@/components/RequestList';
 // import RoomList from '@/components/RoomList';
 // import TenantList from '@/components/TenantList';
+import ApartmentDetailSkeleton from '@/components/skeleton/ApartmentDetailSkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { getApartmentById } from '@/features/apartment/apartmentThunk';
+import { useCustomNavigate } from '@/hooks/useCustomNavigate';
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/libs/utils';
+import { AMENITIES } from '@/pages/apartment/apartmentSchema';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { formatPhoneVN } from '@/utils/helpers';
 import {
   IconAlertTriangleFilled,
   IconCircleCheckFilled,
   IconExclamationCircleFilled,
 } from '@tabler/icons-react';
-import { ChevronLeftIcon, MailIcon, PencilIcon, PhoneIcon } from 'lucide-react';
+import { ChevronLeftIcon, ImageOffIcon, MailIcon, PencilIcon, PhoneIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 
 const ApartmentDetailsPage = () => {
+  const appNavigate = useCustomNavigate();
+  const dispatch = useAppDispatch();
+  const { id } = useParams();
+
+  const { apartmentDetails, isDetailLoading } = useAppSelector((state) => state.apartment);
+
+  const [isOpenImages, setIsOpenImages] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getApartmentById(id));
+    }
+  }, [id]);
+
   const STATUS_CONFIG = {
     active: {
       label: 'Hoạt động',
@@ -35,9 +64,12 @@ const ApartmentDetailsPage = () => {
     },
   };
 
-  const status = 'active';
+  const status = apartmentDetails?.status as keyof typeof STATUS_CONFIG;
 
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.inactive;
+
+  if (isDetailLoading) return <ApartmentDetailSkeleton />;
+
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -45,15 +77,23 @@ const ApartmentDetailsPage = () => {
           <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6 max-w-[1200px] mx-auto">
             <div className={cn('flex items-center gap-5 justify-between')}>
               <div className={cn('flex items-center gap-3')}>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" onClick={() => appNavigate(-1)}>
                   <ChevronLeftIcon />
                 </Button>
 
-                <div className={cn('font-semibold line-clamp-1')}>Apartment detail item</div>
+                <div className={cn('font-semibold line-clamp-1')}>{apartmentDetails?.name}</div>
               </div>
 
               <div className={cn('flex items-center justify-end gap-3')}>
-                <Button variant="ghost" className={cn('text-muted-foreground')}>
+                <Button
+                  variant="ghost"
+                  className={cn('text-muted-foreground')}
+                  onClick={() => {
+                    if (id) {
+                      appNavigate(`/apartments/${id}/edit`);
+                    }
+                  }}
+                >
                   <PencilIcon />
                   {`Chỉnh sửa`}
                 </Button>
@@ -63,69 +103,121 @@ const ApartmentDetailsPage = () => {
             <section className={cn('grid gap-3 lg:grid-cols-3')}>
               <div
                 className={cn(
-                  'relative min-h-[250px] overflow-hidden rounded-md border lg:col-span-2 lg:min-h-[420px]'
+                  'relative min-h-[250px] overflow-hidden rounded-md border lg:col-span-2 lg:min-h-[420px] bg-card flex items-center justify-center'
                 )}
               >
-                <img
-                  src={`https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1400&h=980&fit=crop`}
-                  alt=""
-                  className={cn('absolute inset-0 h-full w-full object-cover')}
-                />
+                {apartmentDetails?.images[0] ? (
+                  <img
+                    src={apartmentDetails?.images[0]}
+                    alt=""
+                    className={cn('absolute inset-0 h-full w-full object-cover')}
+                  />
+                ) : (
+                  <ImageOffIcon className="text-muted size-12" />
+                )}
               </div>
 
               <div className={cn('grid gap-3 sm:grid-cols-2 lg:grid-cols-2')}>
                 <div
                   className={cn(
-                    'relative min-h-[200px] overflow-hidden rounded-md border lg:min-h-[200px]'
+                    'relative min-h-[200px] overflow-hidden rounded-md border lg:min-h-[200px] bg-card flex items-center justify-center'
                   )}
                 >
-                  <img
-                    src={`https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&h=640&fit=crop`}
-                    alt=""
-                    className={cn('absolute inset-0 h-full w-full object-cover')}
-                  />
+                  {apartmentDetails?.images[1] ? (
+                    <img
+                      src={apartmentDetails?.images[1]}
+                      alt=""
+                      className={cn('absolute inset-0 h-full w-full object-cover')}
+                    />
+                  ) : (
+                    <ImageOffIcon className="text-muted size-8" />
+                  )}
                 </div>
                 <div
                   className={cn(
-                    'relative min-h-[200px] overflow-hidden rounded-md border lg:min-h-[200px]'
+                    'relative min-h-[200px] overflow-hidden rounded-md border lg:min-h-[200px] bg-card flex items-center justify-center'
                   )}
                 >
-                  <img
-                    src={`https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=900&h=640&fit=crop`}
-                    alt=""
-                    className={cn('absolute inset-0 h-full w-full object-cover')}
-                  />
+                  {apartmentDetails?.images[2] ? (
+                    <img
+                      src={apartmentDetails?.images[2]}
+                      alt=""
+                      className={cn('absolute inset-0 h-full w-full object-cover')}
+                    />
+                  ) : (
+                    <ImageOffIcon className="text-muted size-8" />
+                  )}
                 </div>
                 <div
                   className={cn(
-                    'relative min-h-[200px] overflow-hidden rounded-md border lg:min-h-[200px]'
+                    'relative min-h-[200px] overflow-hidden rounded-md border lg:min-h-[200px] bg-card flex items-center justify-center'
                   )}
                 >
-                  <img
-                    src={`https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=900&h=640&fit=crop`}
-                    alt=""
-                    className={cn('absolute inset-0 h-full w-full object-cover')}
-                  />
+                  {apartmentDetails?.images[3] ? (
+                    <img
+                      src={apartmentDetails?.images[3]}
+                      alt=""
+                      className={cn('absolute inset-0 h-full w-full object-cover')}
+                    />
+                  ) : (
+                    <ImageOffIcon className="text-muted size-8" />
+                  )}
                 </div>
                 <div
                   className={cn(
-                    'relative min-h-[200px] overflow-hidden rounded-md border lg:min-h-[200px]'
+                    'relative min-h-[200px] overflow-hidden rounded-md border lg:min-h-[200px] bg-card flex items-center justify-center'
                   )}
                 >
-                  <img
-                    src={`https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=900&h=640&fit=crop`}
-                    alt=""
-                    className={cn('absolute inset-0 h-full w-full object-cover')}
-                  />
+                  {apartmentDetails?.images[4] ? (
+                    <img
+                      src={apartmentDetails?.images[4]}
+                      alt=""
+                      className={cn('absolute inset-0 h-full w-full object-cover')}
+                    />
+                  ) : (
+                    <ImageOffIcon className="text-muted size-8" />
+                  )}
 
-                  <div className={cn('absolute right-3 bottom-3')}>
-                    <Button variant="secondary">Xem ảnh (5)</Button>
-                  </div>
+                  {apartmentDetails?.images && apartmentDetails.images.length > 0 && (
+                    <div className={cn('absolute right-3 bottom-3')}>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setIsOpenImages(true)}
+                      >{`Xem ảnh (${apartmentDetails.images.length})`}</Button>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              <Dialog open={isOpenImages} onOpenChange={setIsOpenImages}>
+                <DialogContent className="sm:max-w-2xl w-full max-w-[90vw] p-6 overflow-hidden rounded-2xl sm:rounded-3xl">
+                  <div className="w-full flex justify-center items-center px-12 py-4">
+                    <Carousel
+                      className="w-full max-w-full"
+                      opts={{
+                        align: 'start',
+                      }}
+                    >
+                      <CarouselContent>
+                        {apartmentDetails?.images.map((image, index) => (
+                          <CarouselItem key={index}>
+                            <div className="p-1">
+                              <div className="flex aspect-auto items-center justify-center rounded-xl bg-muted overflow-hidden border">
+                                <img src={image} alt="img" className="w-full h-full object-cover" />
+                              </div>
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious />
+                      <CarouselNext />
+                    </Carousel>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </section>
 
-            <section className={cn('grid gap-4 lg:grid-cols-[1fr_320px]')}>
+            <section className={cn('grid gap-4 lg:grid-cols-[1fr_280px_280px]')}>
               <Card>
                 <CardContent className={cn('py-5')}>
                   <Badge
@@ -138,46 +230,48 @@ const ApartmentDetailsPage = () => {
                     <span>{config.label}</span>
                   </Badge>
 
-                  <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-4')}>
+                  <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-3')}>
                     <div className="space-y-1">
                       <p className={cn('text-muted-foreground text-sm')}>Tổng số phòng</p>
-                      <p className={cn('')}>15</p>
+                      <p className={cn('')}>{apartmentDetails?.totalRooms}</p>
                     </div>
 
                     <div className="space-y-1">
                       <p className={cn('text-muted-foreground text-sm')}>Số phòng trống</p>
-                      <p className={cn('')}>5</p>
+                      <p className={cn('')}>{apartmentDetails?.availableRooms}</p>
                     </div>
 
-                    <div className="space-y-1 col-span-4">
-                      <p className={cn('text-muted-foreground text-sm')}>Tiện ích</p>
-                      <div className={cn('flex items-center flex-wrap gap-2')}>
-                        <Badge variant="outline">Mạng wifi</Badge>
-                        <Badge variant="outline">Chỗ để xe</Badge>
-                        <Badge variant="outline">Camera an ninh</Badge>
-                        <Badge variant="outline">Máy giặt</Badge>
-                        <Badge variant="outline">Thang máy</Badge>
-                        <Badge variant="outline">Khóa cửa vân tay</Badge>
-                        <Badge variant="outline">An toàn phòng cháy, chữa cháy</Badge>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1 col-span-4">
+                    <div className="space-y-1 col-span-3">
                       <p className={cn('text-muted-foreground text-sm')}>Địa chỉ</p>
                       <p className={cn('')}>
-                        Số 18 ngõ 25 Lê Đức Thọ, Phường Từ Liêm, Thành phố Hà Nội
+                        {`${apartmentDetails?.address.street}, ${apartmentDetails?.address.wardName}, ${apartmentDetails?.address.provinceName}`}
                       </p>
                     </div>
 
-                    <div className="space-y-1 col-span-4">
+                    <div className="space-y-1 col-span-3">
                       <p className={cn('text-muted-foreground text-sm')}>Mô tả</p>
-                      <p className={cn('')}>
-                        Aliquip reprehenderit consequat pariatur qui reprehenderit cupidatat aute
-                        dolore eu est voluptate officia dolore. Sunt do sunt ad incididunt. Sit
-                        ipsum labore incididunt ipsum aute irure eiusmod dolore Lorem occaecat ut
-                        voluptate ipsum. Consectetur quis exercitation consequat sit.
-                      </p>
+                      <p className={cn('')}>{apartmentDetails?.description || '--'}</p>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className={cn('py-5 space-y-4')}>
+                  <p className="text-muted-foreground text-sm">Tiện ích</p>
+
+                  <div className="flex items-center flex-wrap gap-2">
+                    {apartmentDetails?.amenities && apartmentDetails.amenities.length > 0
+                      ? apartmentDetails.amenities.map((a) => {
+                          const matchedItem = AMENITIES.find((item) => item.value === a);
+
+                          return (
+                            <Badge variant="outline" className="py-1">
+                              {matchedItem?.label}
+                            </Badge>
+                          );
+                        })
+                      : 'Chưa cập nhật'}
                   </div>
                 </CardContent>
               </Card>
@@ -187,13 +281,14 @@ const ApartmentDetailsPage = () => {
                   <div className="">
                     <p className={cn('text-muted-foreground text-sm')}>Chủ nhà</p>
 
-                    <p className={cn('text-md font-semibold')}>Nguyễn Văn A</p>
+                    <p className={cn('text-md font-semibold')}>{apartmentDetails?.contact.name}</p>
                   </div>
 
                   <div className={cn('space-y-2 text-sm')}>
                     <p className={cn('inline-flex items-center gap-2')}>
                       <PhoneIcon className={cn('text-muted-foreground size-4')} />
-                      {formatPhoneVN(`0987654321`)}
+                      {apartmentDetails?.contact.phone &&
+                        formatPhoneVN(apartmentDetails?.contact.phone)}
                     </p>
                   </div>
 
@@ -202,18 +297,18 @@ const ApartmentDetailsPage = () => {
                   <div className="">
                     <p className={cn('text-muted-foreground text-sm')}>Quản lý</p>
 
-                    <p className={cn('text-md font-semibold')}>Trần Việt Phương</p>
+                    <p className={cn('text-md font-semibold')}>--</p>
                   </div>
 
                   <div className={cn('space-y-2 text-sm flex flex-col')}>
                     <p className={cn('inline-flex items-center gap-2')}>
                       <PhoneIcon className={cn('text-muted-foreground size-4')} />
-                      {formatPhoneVN(`0987654321`)}
+                      --
                     </p>
 
                     <p className={cn('inline-flex items-center gap-2')}>
                       <MailIcon className={cn('text-muted-foreground size-4')} />
-                      {`example@gmail.com`}
+                      --
                     </p>
                   </div>
                 </CardContent>

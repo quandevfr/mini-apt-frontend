@@ -17,7 +17,7 @@ import { NavLink, type NavLinkProps } from 'react-router';
 import NProgress from 'nprogress';
 import { cn } from '@/libs/utils';
 
-export const CustomLink = ({ onClick, className, ...props }: NavLinkProps) => {
+export const CustomLink = ({ onClick, className, end = true, ...props }: NavLinkProps) => {
   return (
     <NavLink
       {...props}
@@ -33,6 +33,7 @@ export const CustomLink = ({ onClick, className, ...props }: NavLinkProps) => {
         NProgress.start();
         if (onClick) onClick(e);
       }}
+      end={end}
     />
   );
 };
