@@ -22,20 +22,18 @@ NProgress.configure({
   trickle: true, // tự động tăng dần
 });
 
-const MainLayout = () => {
+const LayoutContent = () => {
   const location = useLocation();
   const { forceStopAll } = useGlobalLoading();
 
   useEffect(() => {
     forceStopAll();
-
     NProgress.done();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   return (
-    <SidebarProvider>
+    <>
       <AppSidebar />
 
       <SidebarInset className="beautiful-scrollbar">
@@ -65,6 +63,14 @@ const MainLayout = () => {
           <Outlet />
         </div>
       </SidebarInset>
+    </>
+  );
+};
+
+const MainLayout = () => {
+  return (
+    <SidebarProvider>
+      <LayoutContent />
     </SidebarProvider>
   );
 };

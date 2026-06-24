@@ -17,7 +17,7 @@ export const PATHS = {
     APARTMENTS: {
       INDEX: '/apartments',
       CREATE: '/apartments/create',
-      UPDATE: '/apartments/:id',
+      UPDATE: '/apartments/:id/edit',
       DETAILS: '/apartments/:id',
     },
     ROOMS: {

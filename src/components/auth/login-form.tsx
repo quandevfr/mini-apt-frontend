@@ -67,7 +67,7 @@ export const LoginForm = ({ className, ...props }: React.ComponentProps<'form'>)
           </p>
         </div>
 
-        <Alert className="border-sky-400 bg-sky-900">
+        <Alert className="dark:border-sky-400 dark:bg-sky-900 bg-sky-100 border-sky-100">
           <AlertDescription>
             Sử dụng <span className="font-bold">demoapt@gmail.com</span> với mật khẩu{' '}
             <span className="font-bold">@Miniapt</span>

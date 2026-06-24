@@ -244,8 +244,9 @@ function Sidebar({
 }
 
 function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar, state } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  const { toggleSidebar, state, openMobile, isMobile } = useSidebar();
+
+  const isCollapsed = isMobile ? !openMobile : state === 'collapsed';
 
   return (
     <Button

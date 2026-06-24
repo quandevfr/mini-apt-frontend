@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import type {
@@ -225,7 +223,7 @@ export function DataTableDefault<T>({
       </div>
 
       <div className="overflow-hidden rounded-md border">
-        <Table>
+        <Table className="min-w-5xl">
           <TableHeader className="bg-muted sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
