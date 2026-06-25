@@ -12,7 +12,7 @@ import { ThemeProvider } from './context/ThemeContext.tsx';
 import { store } from './store/store.ts';
 
 // Styles
-import './index.css';
+import './globals.css';
 import AppInitializer from '@/components/common/AppInitializer.tsx';
 
 createRoot(document.getElementById('root')!).render(
