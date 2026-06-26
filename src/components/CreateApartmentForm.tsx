@@ -133,7 +133,9 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
   const { isProvincesLoading, isWardsLoading, provinces, wardsByProvinceCode } = useAppSelector(
     (state) => state.address
   );
-  const { isDetailLoading, apartmentDetails } = useAppSelector((state) => state.apartment);
+  const { apartmentDetails, loading: apartmentLoading } = useAppSelector(
+    (state) => state.apartment
+  );
   const { isLoading: isUploading } = useAppSelector((state) => state.upload);
   const { startLoading, stopLoading, isLoading: isGlobalLoading } = useGlobalLoading();
 
@@ -256,7 +258,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
     navigate(PATHS.PAGE.APARTMENTS.INDEX);
   };
 
-  if (isUpdate && isDetailLoading) return <CreateApartmentFormSkeleton />;
+  if (isUpdate && apartmentLoading.getDetail) return <CreateApartmentFormSkeleton />;
 
   return (
     <form
@@ -454,7 +456,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
                   render={({ field }) => {
                     return (
                       <FileUpload
-                        maxFiles={2}
+                        maxFiles={5}
                         maxSize={MAX_FILE_SIZE}
                         className="w-full"
                         value={field.value}

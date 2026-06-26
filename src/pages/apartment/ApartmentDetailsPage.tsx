@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/carousel';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { resetApartmentDetail } from '@/features/apartment/apartmentSlice';
 import { getApartmentById } from '@/features/apartment/apartmentThunk';
 import { useCustomNavigate } from '@/hooks/useCustomNavigate';
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -36,7 +37,9 @@ const ApartmentDetailsPage = () => {
   const dispatch = useAppDispatch();
   const { id } = useParams();
 
-  const { apartmentDetails, isDetailLoading } = useAppSelector((state) => state.apartment);
+  const { apartmentDetails, loading: apartmentLoading } = useAppSelector(
+    (state) => state.apartment
+  );
 
   const [isOpenImages, setIsOpenImages] = useState<boolean>(false);
 
@@ -44,7 +47,11 @@ const ApartmentDetailsPage = () => {
     if (id) {
       dispatch(getApartmentById(id));
     }
-  }, [id]);
+
+    return () => {
+      dispatch(resetApartmentDetail());
+    };
+  }, [id, dispatch]);
 
   const STATUS_CONFIG = {
     active: {
@@ -68,7 +75,7 @@ const ApartmentDetailsPage = () => {
 
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.inactive;
 
-  if (isDetailLoading) return <ApartmentDetailSkeleton />;
+  if (apartmentLoading.getDetail) return <ApartmentDetailSkeleton />;
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">

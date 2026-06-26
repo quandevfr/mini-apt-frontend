@@ -55,6 +55,9 @@ export interface DataTableDefaultProps<T> {
   onRowClick?: (row: T) => void;
   loading?: boolean;
   totalCount: number;
+  defaultPage?: number;
+  defaultPageSize?: number;
+  defaultSearch?: string;
 
   // Toolbar
   renderToolbarLeft?: (table: ReturnType<typeof useReactTable<T>>) => React.ReactNode;
@@ -101,15 +104,18 @@ export function DataTableDefault<T>({
   enableSearch = true,
   enablePagination = true,
   onQueryChange,
+  defaultPage = 1,
+  defaultPageSize = 10,
+  defaultSearch = '',
 }: DataTableDefaultProps<T>) {
-  const [searchKey, setSearchKey] = React.useState<string>('');
+  const [searchKey, setSearchKey] = React.useState<string>(defaultSearch);
   const [debounceSearchKey] = useDebounce(searchKey, 500);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pageIndex, setPageIndex] = React.useState<number>(0);
-  const [pageSize, setPageSize] = React.useState<number>(10);
+  const [pageIndex, setPageIndex] = React.useState<number>(defaultPage - 1);
+  const [pageSize, setPageSize] = React.useState<number>(defaultPageSize);
 
   const table = useReactTable({
     data,

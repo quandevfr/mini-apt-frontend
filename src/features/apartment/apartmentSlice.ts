@@ -14,9 +14,18 @@ interface ApartmentState {
   apartments: GetApartmentsResponse[];
   pagination: PaginationResponse;
   apartmentDetails: GetApartmentsResponse | null;
-  isLoading: boolean;
-  isSubmitting: boolean;
-  isDetailLoading: boolean;
+
+  loading: {
+    getList: boolean;
+    getDetail: boolean;
+    create: boolean;
+    update: boolean;
+    delete: string | null;
+    deleteMany: {
+      isSubmitting: boolean;
+      ids: string[];
+    };
+  };
 }
 
 const initialState: ApartmentState = {
@@ -30,9 +39,18 @@ const initialState: ApartmentState = {
     hasPrev: false,
   },
   apartmentDetails: null,
-  isLoading: false,
-  isSubmitting: false,
-  isDetailLoading: false,
+
+  loading: {
+    getList: false,
+    getDetail: false,
+    create: false,
+    update: false,
+    delete: null,
+    deleteMany: {
+      isSubmitting: false,
+      ids: [],
+    },
+  },
 };
 
 const apartmentSlice = createSlice({
@@ -43,80 +61,87 @@ const apartmentSlice = createSlice({
       state.apartments = [];
       state.pagination = initialState.pagination;
     },
+    resetApartmentDetail(state) {
+      state.apartmentDetails = null;
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Get all
+      /** === GET ALL === */
       .addCase(getApartments.pending, (state) => {
-        state.isLoading = true;
+        state.loading.getList = true;
       })
       .addCase(getApartments.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.loading.getList = false;
         state.apartments = action.payload.items;
         state.pagination = action.payload.pagination;
       })
       .addCase(getApartments.rejected, (state) => {
-        state.isLoading = false;
+        state.loading.getList = false;
       })
 
-      // Get by id
+      /** === GET BY ID === */
       .addCase(getApartmentById.pending, (state) => {
-        state.isDetailLoading = true;
+        state.loading.getDetail = true;
       })
       .addCase(getApartmentById.fulfilled, (state, action) => {
-        state.isDetailLoading = false;
+        state.loading.getDetail = false;
         state.apartmentDetails = action.payload;
       })
       .addCase(getApartmentById.rejected, (state) => {
-        state.isDetailLoading = false;
+        state.loading.getDetail = false;
       })
 
-      // Create apartment
+      /** === CREATE === */
       .addCase(createApartment.pending, (state) => {
-        state.isSubmitting = true;
+        state.loading.create = true;
       })
       .addCase(createApartment.fulfilled, (state) => {
-        state.isSubmitting = false;
+        state.loading.create = false;
       })
       .addCase(createApartment.rejected, (state) => {
-        state.isSubmitting = false;
+        state.loading.create = false;
       })
 
-      // Delete apartment
-      .addCase(deleteApartment.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(deleteApartment.fulfilled, (state) => {
-        state.isLoading = false;
-      })
-      .addCase(deleteApartment.rejected, (state) => {
-        state.isLoading = false;
-      })
-
-      // Delete apartments
-      .addCase(deleteApartments.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(deleteApartments.fulfilled, (state) => {
-        state.isLoading = false;
-      })
-      .addCase(deleteApartments.rejected, (state) => {
-        state.isLoading = false;
-      })
-
-      // Update apartments
+      /** === UPDATE === */
       .addCase(updateApartment.pending, (state) => {
-        state.isSubmitting = true;
+        state.loading.update = true;
       })
       .addCase(updateApartment.fulfilled, (state) => {
-        state.isSubmitting = false;
+        state.loading.update = false;
       })
       .addCase(updateApartment.rejected, (state) => {
-        state.isSubmitting = false;
+        state.loading.update = false;
+      })
+
+      /** === DELETE BY ID === */
+      .addCase(deleteApartment.pending, (state, action) => {
+        state.loading.delete = action.meta.arg;
+      })
+      .addCase(deleteApartment.fulfilled, (state) => {
+        state.loading.delete = null;
+      })
+      .addCase(deleteApartment.rejected, (state) => {
+        state.loading.delete = null;
+      })
+
+      /** === DELETE MANY === */
+      .addCase(deleteApartments.pending, (state, action) => {
+        state.loading.deleteMany.isSubmitting = true;
+        state.loading.deleteMany.ids = action.meta.arg.ids;
+      })
+      .addCase(deleteApartments.fulfilled, (state) => {
+        state.loading.deleteMany.isSubmitting = false;
+        state.loading.deleteMany.ids = [];
+      })
+      .addCase(deleteApartments.rejected, (state) => {
+        state.loading.deleteMany.isSubmitting = false;
+        state.loading.deleteMany.ids = [];
       });
   },
 });
 
-export const { clearApartment } = apartmentSlice.actions;
+export const { clearApartment, resetApartmentDetail } = apartmentSlice.actions;
+
 const apartmentReducer = apartmentSlice.reducer;
 export default apartmentReducer;

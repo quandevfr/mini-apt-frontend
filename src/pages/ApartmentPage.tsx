@@ -64,16 +64,18 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
         />
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="flex items-center pl-2">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="rounded"
-        />
-      </div>
-    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center pl-2">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+            className="rounded"
+          />
+        </div>
+      );
+    },
     size: 30,
     enableSorting: false,
     enableHiding: false,
@@ -313,7 +315,7 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
 const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartmentsResponse>>) => {
   const appNavigate = useCustomNavigate();
   const dispatch = useAppDispatch();
-  const { isLoading } = useAppSelector((state) => state.apartment);
+  const { loading: apartmentLoading } = useAppSelector((state) => state.apartment);
   const { query } = useQueryParams<ApartmentQuery>();
 
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
@@ -359,13 +361,15 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
           <Button
             variant="destructive"
             size={'lg'}
-            disabled={isLoading || selected.length === 0}
+            disabled={apartmentLoading.deleteMany.isSubmitting || selected.length === 0}
             onClick={(e) => {
               e.preventDefault();
               setIsDeleteConfirm(true);
             }}
           >
-            {`Xoá mục đã chọn (${selected.length})`}
+            {apartmentLoading.deleteMany.isSubmitting
+              ? `Đang xóa...`
+              : `Xoá mục đã chọn (${selected.length})`}
           </Button>
 
           <AlertDialog open={isDeleteConfirm} onOpenChange={setIsDeleteConfirm}>
@@ -404,7 +408,11 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
 
 const ApartmentPage = () => {
   const dispatch = useAppDispatch();
-  const { apartments, pagination, isLoading } = useAppSelector((state) => state.apartment);
+  const {
+    apartments,
+    pagination,
+    loading: apartmentLoading,
+  } = useAppSelector((state) => state.apartment);
 
   const { query, setQuery } = useQueryParams<ApartmentQuery>();
 
@@ -429,7 +437,10 @@ const ApartmentPage = () => {
   const handleQueryChange = (newQuery: DataTableDefaultQuery) => {
     console.log(`Query: ${JSON.stringify(newQuery)}`);
 
-    setQuery({ page: newQuery.page, limit: newQuery.limit, search: newQuery.search });
+    setQuery(
+      { page: newQuery.page, limit: newQuery.limit, search: newQuery.search },
+      { replace: newQuery.search !== query.search }
+    );
   };
 
   return (
@@ -446,9 +457,12 @@ const ApartmentPage = () => {
               totalCount={pagination.total}
               onRowClick={handleRowClick}
               getRowId={(payment, index) => payment._id || `row-${index}`}
-              loading={isLoading}
+              loading={apartmentLoading.getList}
               renderToolbarRight={RenderToolbarRight}
               onQueryChange={handleQueryChange}
+              defaultPage={page}
+              defaultPageSize={limit}
+              defaultSearch={search ?? ''}
             />
           </TabsContent>
         </Tabs>
