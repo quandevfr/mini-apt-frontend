@@ -183,6 +183,7 @@ export function DataTableDefault<T>({
                 <InputGroupInput
                   type="text"
                   placeholder="Tìm kiếm..."
+                  className="sm:w-[250px]"
                   onChange={(event) => setSearchKey(event.target.value)}
                 />
 

@@ -1,9 +1,5 @@
 // Libs
-import {
-  IconAlertTriangleFilled,
-  IconCircleCheckFilled,
-  IconExclamationCircleFilled,
-} from '@tabler/icons-react';
+import { IconAlertTriangleFilled } from '@tabler/icons-react';
 import type { ColumnDef, useReactTable } from '@tanstack/react-table';
 
 // Components
@@ -29,7 +25,7 @@ import { PATHS } from '@/utils/constants/paths';
 import type { GetApartmentsResponse } from '@/types/apartment';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { MoreHorizontalIcon, Plus, Trash2Icon } from 'lucide-react';
+import { MoreHorizontalIcon, Plus } from 'lucide-react';
 import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
 import { useQueryParams } from '@/hooks/useQueryParams';
 import type { ApartmentQuery } from '@/types/query';
@@ -121,17 +117,14 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
         active: {
           label: 'Hoạt động',
           className: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400 ',
-          Icon: <IconCircleCheckFilled className="text-green-500 dark:text-green-400 size-4" />,
         },
         inactive: {
-          label: 'Ngưng hoạt động',
+          label: 'Dừng hoạt động',
           className: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400',
-          Icon: <IconExclamationCircleFilled className="text-red-500 dark:text-red-400 size-4" />,
         },
         suspended: {
           label: 'Tạm dừng vận hành',
           className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400',
-          Icon: <IconAlertTriangleFilled className="text-amber-500 dark:text-amber-400 size-4" />,
         },
       };
 
@@ -146,7 +139,6 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
             config.className
           )}
         >
-          {config.Icon}
           <span>{config.label}</span>
         </Badge>
       );
@@ -287,14 +279,15 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
       <AlertDialog open={isDeleteConfirm} onOpenChange={setIsDeleteConfirm}>
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
-            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-              <Trash2Icon />
+            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive size-14">
+              <IconAlertTriangleFilled className="size-8" />
             </AlertDialogMedia>
 
             <AlertDialogTitle>Xóa chung cư mini?</AlertDialogTitle>
 
             <AlertDialogDescription>
-              {`Bạn có chắc chắn muốn xóa ${apartmentName} không?`}
+              Bạn có chắc chắn muốn xóa{' '}
+              <span className="font-semibold text-foreground">{apartmentName}</span> không?
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -360,7 +353,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
         <>
           <Button
             variant="destructive"
-            size={'lg'}
+            className={cn('btn-press-effect')}
             disabled={apartmentLoading.deleteMany.isSubmitting || selected.length === 0}
             onClick={(e) => {
               e.preventDefault();
@@ -375,14 +368,18 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
           <AlertDialog open={isDeleteConfirm} onOpenChange={setIsDeleteConfirm}>
             <AlertDialogContent size="sm">
               <AlertDialogHeader>
-                <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-                  <Trash2Icon />
+                <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive size-14">
+                  <IconAlertTriangleFilled className="size-8" />
                 </AlertDialogMedia>
 
                 <AlertDialogTitle>Delete chung cư mini?</AlertDialogTitle>
 
                 <AlertDialogDescription>
-                  {`Bạn có chắc chắn muốn xóa (${selected.length}) chung cư mini đã chọn không?`}
+                  Bạn có chắc chắn muốn xóa{' '}
+                  <span className="font-semibold text-foreground">
+                    {`${selected.length} chung cư mini`}
+                  </span>{' '}
+                  đã chọn không?
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
@@ -399,7 +396,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
         </>
       )}
 
-      <Button onClick={handleNavigateToCreate}>
+      <Button className={cn('btn-press-effect')} onClick={handleNavigateToCreate}>
         <Plus /> Thêm mới
       </Button>
     </div>

@@ -846,7 +846,12 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
             'flex items-center justify-end gap-4 flex-wrap md:flex-row pb-12'
           )}
         >
-          <Button variant="outline" size={'lg'} onClick={handleCloseForm}>
+          <Button
+            variant="outline"
+            size={'lg'}
+            className={cn('btn-press-effect')}
+            onClick={handleCloseForm}
+          >
             Huỷ
           </Button>
 
@@ -854,6 +859,7 @@ const CreateApartmentForm = ({ className, ...props }: React.ComponentProps<'form
             type="submit"
             size={'lg'}
             form="apartmentForm"
+            className={cn('btn-press-effect')}
             disabled={
               isGlobalLoading ||
               (!isDirty && existingImages.length === apartmentDetails?.images.length)
