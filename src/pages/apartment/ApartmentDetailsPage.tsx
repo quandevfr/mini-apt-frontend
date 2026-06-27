@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/carousel';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { resetApartmentDetail } from '@/features/apartment/apartmentSlice';
 import { getApartmentById } from '@/features/apartment/apartmentThunk';
 import { useCustomNavigate } from '@/hooks/useCustomNavigate';
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,11 +23,6 @@ import { cn } from '@/libs/utils';
 import { AMENITIES } from '@/pages/apartment/apartmentSchema';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { formatPhoneVN } from '@/utils/helpers';
-import {
-  IconAlertTriangleFilled,
-  IconCircleCheckFilled,
-  IconExclamationCircleFilled,
-} from '@tabler/icons-react';
 import { ChevronLeftIcon, ImageOffIcon, MailIcon, PencilIcon, PhoneIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
@@ -36,7 +32,9 @@ const ApartmentDetailsPage = () => {
   const dispatch = useAppDispatch();
   const { id } = useParams();
 
-  const { apartmentDetails, isDetailLoading } = useAppSelector((state) => state.apartment);
+  const { apartmentDetails, loading: apartmentLoading } = useAppSelector(
+    (state) => state.apartment
+  );
 
   const [isOpenImages, setIsOpenImages] = useState<boolean>(false);
 
@@ -44,23 +42,24 @@ const ApartmentDetailsPage = () => {
     if (id) {
       dispatch(getApartmentById(id));
     }
-  }, [id]);
+
+    return () => {
+      dispatch(resetApartmentDetail());
+    };
+  }, [id, dispatch]);
 
   const STATUS_CONFIG = {
     active: {
       label: 'Hoạt động',
       className: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400 ',
-      Icon: <IconCircleCheckFilled className="text-green-500 dark:text-green-400 size-4" />,
     },
     inactive: {
       label: 'Ngưng hoạt động',
       className: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400',
-      Icon: <IconExclamationCircleFilled className="text-red-500 dark:text-red-400 size-4" />,
     },
     suspended: {
       label: 'Tạm dừng vận hành',
       className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400',
-      Icon: <IconAlertTriangleFilled className="text-amber-500 dark:text-amber-400 size-4" />,
     },
   };
 
@@ -68,7 +67,7 @@ const ApartmentDetailsPage = () => {
 
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.inactive;
 
-  if (isDetailLoading) return <ApartmentDetailSkeleton />;
+  if (apartmentLoading.getDetail) return <ApartmentDetailSkeleton />;
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-2">
@@ -77,7 +76,12 @@ const ApartmentDetailsPage = () => {
           <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6 max-w-[1200px] mx-auto">
             <div className={cn('flex items-center gap-5 justify-between')}>
               <div className={cn('flex items-center gap-3')}>
-                <Button variant="outline" size="icon" onClick={() => appNavigate(-1)}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={cn('btn-press-effect')}
+                  onClick={() => appNavigate(-1)}
+                >
                   <ChevronLeftIcon />
                 </Button>
 
@@ -87,7 +91,7 @@ const ApartmentDetailsPage = () => {
               <div className={cn('flex items-center justify-end gap-3')}>
                 <Button
                   variant="ghost"
-                  className={cn('text-muted-foreground')}
+                  className={cn('text-muted-foreground btn-press-effect')}
                   onClick={() => {
                     if (id) {
                       appNavigate(`/apartments/${id}/edit`);
@@ -226,7 +230,6 @@ const ApartmentDetailsPage = () => {
                       config.className
                     )}
                   >
-                    {config.Icon}
                     <span>{config.label}</span>
                   </Badge>
 

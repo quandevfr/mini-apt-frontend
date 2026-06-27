@@ -26,7 +26,7 @@ export const useQueryParams = <T extends QueryRecord>() => {
               .map(([key, value]) => [key, String(value)])
           );
         },
-        { replace: options?.replace ?? true }
+        { replace: options?.replace ?? false }
       );
     },
     [setSearchParams]

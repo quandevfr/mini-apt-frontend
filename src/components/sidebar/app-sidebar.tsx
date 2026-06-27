@@ -27,6 +27,7 @@ import { NavMainButton } from './nav-main-button';
 import { PATHS } from '@/utils/constants/paths';
 import { useAppSelector } from '@/store/hooks';
 import { CustomLink } from '@/components/common/CustomLink';
+import { cn } from '@/libs/utils';
 
 // This is sample data.
 const data = {
@@ -152,7 +153,8 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAppSelector((state) => state.auth);
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -171,10 +173,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <img src="" alt="logo" className="" />
                 </div> */}
 
-                <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md">
+                <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md shrink-0">
                   <GalleryVerticalEnd className="size-4" />
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
+
+                <div
+                  className={cn(
+                    'flex flex-col gap-0.5 leading-none transition-all ease-in-out',
+                    isCollapsed && 'hidden'
+                  )}
+                >
                   <span className="font-medium">Mini Apartment</span>
                   <span className="text-xs text-sidebar-foreground">v1.0.0</span>
                 </div>
