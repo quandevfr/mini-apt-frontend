@@ -244,7 +244,7 @@
 }
 
 @utility beautiful-scrollbar {
-  @apply scrollbar-thin;
+  @apply scrollbar-thin scroll-smooth;
   @apply scrollbar-thumb-zinc-400 dark:scrollbar-thumb-zinc-600;
   @apply scrollbar-track-transparent scrollbar-thumb-rounded-full;
 }
