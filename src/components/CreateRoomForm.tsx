@@ -1,6 +1,6 @@
 // Libs
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { Check, ChevronLeftIcon, ChevronsUpDown, PlusIcon, TrashIcon } from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
@@ -40,11 +40,20 @@ import {
   type CreateRoomValues,
 } from '@/pages/room/roomSchema';
 import { useCustomNavigate } from '@/hooks/useCustomNavigate';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { createRoom, uploadCloudinary, uploadSignature } from '@/features/room/roomThunk';
+import type { Image } from '@/types/room';
+import { useParams } from 'react-router';
+import { PATHS } from '@/utils/constants/paths';
+import { getApartments } from '@/features/apartment/apartmentThunk';
+import { Spinner } from '@/components/ui/spinner';
+import { useGlobalLoading } from '@/hooks/useGlobalLoading';
 
 const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateRoomValues>({
     resolver: zodResolver(createRoomSchema),
@@ -85,6 +94,10 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
 
   const isMobile = useIsMobile();
   const appNavigate = useCustomNavigate();
+  const dispatch = useAppDispatch();
+  const { id: roomId } = useParams();
+  const isUpdate = !!roomId;
+  const { startLoading, stopLoading, isLoading: isGlobalLoading } = useGlobalLoading();
 
   const [openApartment, setOpenApartment] = useState<boolean>(false);
 
@@ -95,8 +108,64 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
     remove: removeAsset,
   } = useFieldArray({ control, name: 'assets' });
 
+  const { loading: roomLoading } = useAppSelector((state) => state.room);
+  const { loading: apartmentLoading, apartments } = useAppSelector((state) => state.apartment);
+
+  useEffect(() => {
+    const apartmentParams = { isGetAll: true };
+    dispatch(getApartments(apartmentParams));
+  }, [dispatch]);
+
   const onSubmit = async (data: CreateRoomValues) => {
-    console.log(data);
+    startLoading();
+    try {
+      const imageUrls: Image[] = [];
+
+      if (data.images && data.images.length > 0) {
+        for (const image of data.images) {
+          const { file } = image;
+
+          const result = await dispatch(uploadSignature()).unwrap();
+          const { apiKey, cloudName, signature, timestamp } = result.data;
+
+          const cloudinaryData = new FormData();
+          cloudinaryData.append('file', file);
+          cloudinaryData.append('folder', 'rooms');
+          cloudinaryData.append('timestamp', timestamp.toString());
+          cloudinaryData.append('upload_preset', 'room_preset_signed');
+          cloudinaryData.append('api_key', apiKey);
+          cloudinaryData.append('signature', signature);
+
+          const res = await dispatch(uploadCloudinary({ cloudName, cloudinaryData })).unwrap();
+          const { secure_url, bytes, display_name, resource_type, format } = res.data;
+
+          imageUrls.push({
+            url: secure_url,
+            size: bytes,
+            mimeType: `${resource_type}/${format}`,
+            name: display_name,
+          });
+        }
+      }
+
+      if (isUpdate) {
+        // Update
+      } else {
+        await dispatch(createRoom({ ...data, images: imageUrls })).unwrap();
+
+        reset();
+      }
+
+      appNavigate(PATHS.PAGE.ROOMS.INDEX);
+    } catch (error) {
+      console.error(error);
+      stopLoading();
+    }
+  };
+
+  const handleCloseForm = () => {
+    reset();
+    appNavigate(PATHS.PAGE.ROOMS.INDEX);
   };
 
   return (
@@ -111,7 +180,7 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
           variant="outline"
           size="icon"
           className={cn('btn-press-effect')}
-          onClick={() => appNavigate(-1)}
+          onClick={handleCloseForm}
         >
           <ChevronLeftIcon />
         </Button>
@@ -119,7 +188,7 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
         <div className={cn('font-semibold line-clamp-1 capitalize')}>Tạo Phòng</div>
       </div>
 
-      <FieldSet disabled={false}>
+      <FieldSet disabled={roomLoading.create || isGlobalLoading}>
         <Card className="w-full max-w-3xl mx-auto @container/card">
           <CardHeader>
             <CardTitle>Thông tin phòng</CardTitle>
@@ -159,9 +228,15 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
                               )}
                               id="commune"
                               name="commune"
+                              disabled={apartmentLoading.getList}
                             >
                               {selectedApt?.label ?? 'Chọn chung cư mini'}
-                              <ChevronsUpDown className="opacity-50" />
+
+                              {apartmentLoading.getList ? (
+                                <Spinner />
+                              ) : (
+                                <ChevronsUpDown className="opacity-50" />
+                              )}
                             </Button>
                           </PopoverTrigger>
 
@@ -177,7 +252,10 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
 
                                 <CommandGroup>
                                   {(
-                                    [{ label: 'Green homes mini', value: '0001' }] as ItemSelect[]
+                                    apartments.map((apt) => ({
+                                      label: apt.name,
+                                      value: apt._id,
+                                    })) as ItemSelect[]
                                   ).map((item) => (
                                     <CommandItem
                                       key={item.value}
@@ -938,7 +1016,7 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
           </CardHeader>
 
           <CardContent>
-            <FieldSet disabled={!apartmentId}>
+            <FieldSet disabled={!apartmentId || isGlobalLoading}>
               <FieldGroup className={cn('grid grid-cols-1 gap-4')}>
                 <Field>
                   <Controller
@@ -949,7 +1027,7 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
                         value={field.value}
                         onChange={field.onChange}
                         maxFiles={10}
-                        disable={!apartmentId}
+                        disable={!apartmentId || isGlobalLoading}
                       />
                     )}
                   />
@@ -967,7 +1045,12 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
               'flex items-center justify-end gap-4 flex-wrap md:flex-row pb-12'
             )}
           >
-            <Button variant="outline" size={'lg'} className={cn('btn-press-effect')}>
+            <Button
+              variant="outline"
+              size={'lg'}
+              className={cn('btn-press-effect')}
+              onClick={handleCloseForm}
+            >
               Huỷ
             </Button>
 
@@ -976,9 +1059,18 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
               form="createRoomForm"
               size={'lg'}
               className={cn('btn-press-effect')}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isGlobalLoading}
             >
-              Tạo phòng
+              {isGlobalLoading ? (
+                <>
+                  <Spinner />
+                  {isUpdate ? 'Đang lưu...' : 'Đang tạo...'}
+                </>
+              ) : isUpdate ? (
+                'Lưu thay đổi'
+              ) : (
+                'Tạo phòng'
+              )}
             </Button>
           </Field>
         </FieldGroup>

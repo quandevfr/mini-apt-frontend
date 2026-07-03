@@ -4,6 +4,7 @@ export interface BaseQuery {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  isGetAll?: boolean;
 }
 
-export type ApartmentQuery = Pick<BaseQuery, 'page' | 'limit' | 'search'>;
+export type ApartmentQuery = Pick<BaseQuery, 'page' | 'limit' | 'search' | 'isGetAll'>;
