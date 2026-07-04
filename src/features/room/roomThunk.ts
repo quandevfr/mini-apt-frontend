@@ -1,15 +1,7 @@
-import { getRoomsApi, roomApi } from '@/apis/roomApi';
+import { roomApi } from '@/apis/roomApi';
+import type { RoomQuery } from '@/types/query';
 import type { CreateRoomReq } from '@/types/room';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-
-export const getRooms = createAsyncThunk('rooms', async (_, { rejectWithValue }) => {
-  try {
-    const res = await getRoomsApi();
-    return res.data;
-  } catch {
-    return rejectWithValue('get rooms failed');
-  }
-});
 
 export const createRoom = createAsyncThunk(
   'rooms/create',
@@ -49,6 +41,19 @@ export const uploadCloudinary = createAsyncThunk(
       return res;
     } catch {
       return rejectWithValue('upload cloudinary failed');
+    }
+  }
+);
+
+export const getRooms = createAsyncThunk(
+  'rooms/get',
+  async (params: RoomQuery | undefined = undefined, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.getRooms(params);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('get rooms failed');
     }
   }
 );

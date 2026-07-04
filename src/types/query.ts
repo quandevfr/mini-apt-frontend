@@ -8,3 +8,4 @@ export interface BaseQuery {
 }
 
 export type ApartmentQuery = Pick<BaseQuery, 'page' | 'limit' | 'search' | 'isGetAll'>;
+export type RoomQuery = Pick<BaseQuery, 'page' | 'limit' | 'search' | 'isGetAll'>;

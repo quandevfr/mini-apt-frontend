@@ -171,6 +171,14 @@ export function DataTableDefault<T>({
     });
   }, [debounceSearchKey, pageIndex, pageSize, sorting, columnFilters]);
 
+  React.useEffect(() => {
+    setPageIndex(defaultPage - 1);
+  }, [defaultPage]);
+
+  React.useEffect(() => {
+    setSearchKey(defaultSearch);
+  }, [defaultSearch]);
+
   return (
     <div className="w-full">
       <div className="flex items-center pb-4 pt-1 gap-4">
@@ -184,6 +192,7 @@ export function DataTableDefault<T>({
                   type="text"
                   placeholder="Tìm kiếm..."
                   className="sm:w-[250px]"
+                  value={searchKey}
                   onChange={(event) => setSearchKey(event.target.value)}
                 />
 

@@ -1,7 +1,8 @@
-import type { ApiResponse } from '@/types/common';
+import type { ApiGetListResponse, ApiResponse } from '@/types/common';
 import axiosClient from './axiosClient';
-import type { CreateRoomReq, CreateRoomRes, UploadSignatureRes } from '@/types/room';
+import type { CreateRoomReq, CreateRoomRes, Room, UploadSignatureRes } from '@/types/room';
 import axios from 'axios';
+import type { RoomQuery } from '@/types/query';
 
 export const getRoomsApi = async () => {
   const res = await axiosClient.get('/rooms');
@@ -30,5 +31,9 @@ export const roomApi = {
       headers: {},
       transformRequest: [(data) => data],
     });
+  },
+
+  getRooms: async (params?: RoomQuery): Promise<ApiResponse<ApiGetListResponse<Room[]>>> => {
+    return axiosClient.get('/v1/rooms', { params });
   },
 };
