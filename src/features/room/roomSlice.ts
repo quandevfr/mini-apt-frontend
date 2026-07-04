@@ -1,9 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { createRoom, getRooms, uploadSignature } from './roomThunk';
-import type { Room } from '@/components/RoomList';
+import type { PaginationResponse } from '@/types/common';
+import type { Room } from '@/types/room';
 
 interface RoomState {
-  list: Room[];
+  rooms: Room[];
+  pagination: PaginationResponse;
   loading: {
     getList: boolean;
     getDetail: boolean;
@@ -19,7 +21,15 @@ interface RoomState {
 }
 
 const initialState: RoomState = {
-  list: [],
+  rooms: [],
+  pagination: {
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false,
+  },
   loading: {
     getList: false,
     getDetail: false,
@@ -39,17 +49,20 @@ const roomSlice = createSlice({
   initialState,
   reducers: {
     clearRoom(state) {
-      state.list = [];
+      state.rooms = [];
+      state.pagination = initialState.pagination;
     },
   },
   extraReducers: (builder) => {
     builder
+      /** === GET LIST === */
       .addCase(getRooms.pending, (state) => {
         state.loading.getList = true;
       })
       .addCase(getRooms.fulfilled, (state, action) => {
         state.loading.getList = false;
-        state.list = action.payload;
+        state.rooms = action.payload.items;
+        state.pagination = action.payload.pagination;
       })
       .addCase(getRooms.rejected, (state) => {
         state.loading.getList = false;

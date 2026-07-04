@@ -434,9 +434,16 @@ const ApartmentPage = () => {
   const handleQueryChange = (newQuery: DataTableDefaultQuery) => {
     console.log(`Query: ${JSON.stringify(newQuery)}`);
 
+    const currentSearch = query.search || '';
+    const incomingSearch = newQuery.search || '';
+
+    const isSearching = incomingSearch !== currentSearch;
+
+    const targetPage = isSearching ? 1 : newQuery.page;
+
     setQuery(
-      { page: newQuery.page, limit: newQuery.limit, search: newQuery.search },
-      { replace: newQuery.search !== query.search }
+      { page: targetPage, limit: newQuery.limit, search: newQuery.search },
+      { replace: isSearching }
     );
   };
 

@@ -18,57 +18,16 @@ import {
 
 // Others
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import type { RootState } from '@/store/rootReducer';
 import { getRooms } from '@/features/room/roomThunk';
 import { PATHS } from '@/utils/constants/paths';
-
-export type Room = {
-  id: string;
-  code: string;
-  name: string;
-  apartmentId: string;
-  numberOfTenant: number;
-  previousMeterNumber: number;
-  currentMeterNumber: number;
-  previousWaterNumber: number;
-  currentWaterNumber: number;
-};
-
-// const data: Room[] = [
-//   {
-//     id: '1',
-//     code: '201',
-//     name: 'Phòng 201',
-//     apartmentId: '1',
-//     numberOfTenant: 2,
-//     previousMeterNumber: 295,
-//     currentMeterNumber: 525,
-//     previousWaterNumber: 56,
-//     currentWaterNumber: 63,
-//   },
-//   {
-//     id: '2',
-//     code: '202',
-//     name: 'Phòng 202',
-//     apartmentId: '1',
-//     numberOfTenant: 2,
-//     previousMeterNumber: 1254,
-//     currentMeterNumber: 1442,
-//     previousWaterNumber: 123,
-//     currentWaterNumber: 135,
-//   },
-//   {
-//     id: '1',
-//     code: '203',
-//     name: 'Phòng 203',
-//     apartmentId: '1',
-//     numberOfTenant: 2,
-//     previousMeterNumber: 245,
-//     currentMeterNumber: 455,
-//     previousWaterNumber: 34,
-//     currentWaterNumber: 46,
-//   },
-// ];
+import type { Room } from '@/types/room';
+import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/libs/utils';
+import { useQueryParams } from '@/hooks/useQueryParams';
+import type { RoomQuery } from '@/types/query';
+import { ROOM_QUERY_DEFAULT } from '@/utils/constants/query';
+import { vndFormat } from '@/utils/helpers/currencyHelper';
 
 export const columns: ColumnDef<Room>[] = [
   {
@@ -101,52 +60,76 @@ export const columns: ColumnDef<Room>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'code',
-    header: 'Code',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('code')}</div>,
-    size: 80,
+    accessorKey: 'roomName',
+    header: 'Phòng',
+    cell: ({ row }) => (
+      <div className="capitalize font-semibold">{row.getValue('roomName') || EMPTY_CELL_VALUE}</div>
+    ),
   },
   {
-    accessorKey: 'name',
-    header: 'Tên phòng',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('name')}</div>,
+    accessorKey: 'apartmentName',
+    header: 'Chung cư mini',
+    cell: ({ row }) => (
+      <div className="capitalize">{row.original.apartment.name || EMPTY_CELL_VALUE}</div>
+    ),
   },
   {
-    accessorKey: 'numberOfTenant',
-    header: () => <div className="text-right">Số người ở</div>,
+    accessorKey: 'electricityPrice',
+    header: () => <div className="text-right">Đơn giá điện</div>,
     cell: ({ row }) => {
-      return <div className="text-right">{row.getValue('numberOfTenant')}</div>;
-    },
-    size: 150,
-  },
-  {
-    accessorKey: 'totalElectric',
-    header: () => <div className="text-right">Tổng số điện sử dụng (kWh)</div>,
-    accessorFn: (row) => {
-      const previous = row.previousMeterNumber;
-      const current = row.currentMeterNumber;
-
-      return current - previous;
-    },
-    cell: ({ getValue }) => {
-      const formattedElectric = getValue<number>().toLocaleString('vi-VN');
-
-      return <div className="text-right font-semibold">{`${formattedElectric} kWh`}</div>;
+      const { electricityPrice } = row.original;
+      return <div className="text-right">{vndFormat.format(electricityPrice)}</div>;
     },
   },
   {
-    accessorKey: 'totalWater',
-    header: () => <div className="text-right">Tổng số nước sử dụng (m³)</div>,
-    accessorFn: (row) => {
-      const previous = row.previousWaterNumber;
-      const current = row.currentWaterNumber;
-
-      return current - previous;
+    accessorKey: 'waterPrice',
+    header: () => <div className="text-right">Đơn giá nước</div>,
+    cell: ({ row }) => {
+      const { waterPrice } = row.original;
+      return <div className="text-right">{vndFormat.format(waterPrice)}</div>;
     },
-    cell: ({ getValue }) => {
-      const formattedWater = getValue<number>().toLocaleString('vi-VN');
+  },
+  {
+    accessorKey: 'price',
+    header: () => <div className="text-right">Giá thuê</div>,
+    cell: ({ row }) => {
+      const { price } = row.original;
+      return <div className="text-right font-semibold">{vndFormat.format(price)}</div>;
+    },
+  },
+  {
+    accessorKey: 'status',
+    header: () => <div className="text-left">Trạng thái</div>,
+    cell: ({ row }) => {
+      const STATUS_CONFIG = {
+        AVAILABLE: {
+          label: 'Phòng trống',
+          className: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400 ',
+        },
+        OCCUPIED: {
+          label: 'Đang ở',
+          className: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+        },
+        MAINTENANCE: {
+          label: 'Bảo trì',
+          className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400',
+        },
+      };
 
-      return <div className="text-right font-semibold">{`${formattedWater} m³`}</div>;
+      const status = row.original.status as keyof typeof STATUS_CONFIG;
+
+      const config = STATUS_CONFIG[status] || EMPTY_CELL_VALUE;
+
+      return (
+        <Badge
+          className={cn(
+            'flex items-center gap-1.5 px-2 py-1 capitalize w-fit font-medium pointer-events-none',
+            config.className
+          )}
+        >
+          <span>{config.label}</span>
+        </Badge>
+      );
     },
   },
   {
@@ -208,31 +191,57 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
 
 const RoomList = () => {
   const dispatch = useAppDispatch();
-  const loading = useAppSelector((state: RootState) => state.room.loading);
-  const list = useAppSelector((state: RootState) => state.room.list);
+  const { rooms, pagination, loading: roomLoading } = useAppSelector((state) => state.room);
+
+  const { query, setQuery } = useQueryParams<RoomQuery>();
+
+  const page = Number(query.page ?? ROOM_QUERY_DEFAULT.page);
+  const limit = Number(query.limit ?? ROOM_QUERY_DEFAULT.limit);
+  const search = query.search;
 
   useEffect(() => {
-    dispatch(getRooms());
-  }, [dispatch]);
+    const params = {
+      page,
+      limit,
+      search,
+    };
+
+    dispatch(getRooms(params));
+  }, [dispatch, page, limit, search]);
 
   const handleRowClick = (room: Room) => {
     console.log(`Clicked room: `, room);
   };
 
-  const handleQueryChange = (query: DataTableDefaultQuery) => {
-    console.log(`Query: ${JSON.stringify(query)}`);
+  const handleQueryChange = (newQuery: DataTableDefaultQuery) => {
+    console.log(`Query: ${JSON.stringify(newQuery)}`);
+
+    const currentSearch = query.search || '';
+    const incomingSearch = newQuery.search || '';
+
+    const isSearching = incomingSearch !== currentSearch;
+
+    const targetPage = isSearching ? 1 : newQuery.page;
+
+    setQuery(
+      { page: targetPage, limit: newQuery.limit, search: newQuery.search },
+      { replace: isSearching }
+    );
   };
 
   return (
     <DataTableDefault
-      data={list ?? []}
+      data={rooms || []}
       columns={columns}
-      totalCount={1}
+      totalCount={pagination.total}
       onRowClick={handleRowClick}
-      getRowId={(room, index) => room.id || `row-${index}`}
-      loading={loading}
+      getRowId={(room, index) => room._id || `row-${index}`}
+      loading={roomLoading.getList}
       renderToolbarRight={RenderToolbarRight}
       onQueryChange={handleQueryChange}
+      defaultPage={page}
+      defaultPageSize={limit}
+      defaultSearch={search ?? ''}
     />
   );
 };

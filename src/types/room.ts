@@ -46,6 +46,7 @@ export interface BaseRoom {
 
 export type CreateRoomReq = BaseRoom;
 export interface CreateRoomRes extends Omit<BaseRoom, 'apartmentId' | 'quantity'> {
+  _id: string;
   apartment: RoomApartmentSelected;
   createdAt: string;
   updatedAt: string;
@@ -56,4 +57,12 @@ export interface UploadSignatureRes {
   timestamp: number;
   apiKey: string;
   cloudName: string;
+}
+
+export interface Room extends Pick<
+  BaseRoom,
+  'roomName' | 'maxPeople' | 'price' | 'electricityPrice' | 'waterPrice' | 'status'
+> {
+  _id: string;
+  apartment: RoomApartmentSelected;
 }

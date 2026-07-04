@@ -14,3 +14,9 @@ export const APARTMENT_QUERY_DEFAULT: ApartmentQuery = {
   limit: 10,
   search: '',
 };
+
+export const ROOM_QUERY_DEFAULT: ApartmentQuery = {
+  page: 1,
+  limit: 10,
+  search: '',
+};
