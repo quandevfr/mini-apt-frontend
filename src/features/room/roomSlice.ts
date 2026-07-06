@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createRoom, getRooms, uploadSignature } from './roomThunk';
+import { createRoom, deleteRoom, getRooms, uploadSignature } from './roomThunk';
 import type { PaginationResponse } from '@/types/common';
 import type { Room } from '@/types/room';
 
@@ -88,6 +88,17 @@ const roomSlice = createSlice({
       })
       .addCase(uploadSignature.rejected, (state) => {
         state.loading.uploadSignature = false;
+      })
+
+      /** === DELELE BY ID === */
+      .addCase(deleteRoom.pending, (state, action) => {
+        state.loading.delete = action.meta.arg;
+      })
+      .addCase(deleteRoom.fulfilled, (state) => {
+        state.loading.delete = null;
+      })
+      .addCase(deleteRoom.rejected, (state) => {
+        state.loading.delete = null;
       });
   },
 });

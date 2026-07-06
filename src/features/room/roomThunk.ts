@@ -57,3 +57,16 @@ export const getRooms = createAsyncThunk(
     }
   }
 );
+
+export const deleteRoom = createAsyncThunk(
+  'rooms/delete',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.deleteById(id);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('delete room failed');
+    }
+  }
+);

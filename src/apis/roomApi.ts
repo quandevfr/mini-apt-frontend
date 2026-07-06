@@ -36,4 +36,10 @@ export const roomApi = {
   getRooms: async (params?: RoomQuery): Promise<ApiResponse<ApiGetListResponse<Room[]>>> => {
     return axiosClient.get('/v1/rooms', { params });
   },
+
+  deleteById: async (id: string): Promise<ApiResponse<void>> => {
+    return axiosClient.delete(`/v1/rooms/${id}`, {
+      headers: { 'Skip-Show_Toast': 'true' },
+    });
+  },
 };

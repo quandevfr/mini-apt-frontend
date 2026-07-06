@@ -1,8 +1,8 @@
 // Libs
-import { IconDotsVertical } from '@tabler/icons-react';
+import { IconAlertTriangleFilled } from '@tabler/icons-react';
 import type { ColumnDef, useReactTable } from '@tanstack/react-table';
 import { useNavigate } from 'react-router';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Components
 import { DataTableDefault, type DataTableDefaultQuery } from '@/components/DataTableDefault';
@@ -42,10 +42,21 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 // Others
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { getRooms } from '@/features/room/roomThunk';
+import { deleteRoom, getRooms } from '@/features/room/roomThunk';
 import { PATHS } from '@/utils/constants/paths';
 import type { Room } from '@/types/room';
 import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
@@ -55,9 +66,11 @@ import type { RoomQuery } from '@/types/query';
 import { ROOM_QUERY_DEFAULT } from '@/utils/constants/query';
 import { vndFormat } from '@/utils/helpers/currencyHelper';
 import { ROOM_STATUS } from '@/pages/room/roomSchema';
-import { ChevronDown, Funnel, Plus } from 'lucide-react';
+import { ChevronDown, Funnel, MoreHorizontalIcon, Plus } from 'lucide-react';
 import type { Item } from '@/types/common';
 import { getApartments } from '@/features/apartment/apartmentThunk';
+import { useCustomNavigate } from '@/hooks/useCustomNavigate';
+import { toast } from 'sonner';
 
 export const columns: ColumnDef<Room>[] = [
   {
@@ -191,33 +204,155 @@ export const columns: ColumnDef<Room>[] = [
     id: 'actions',
     enableHiding: false,
     size: 50,
-    cell: () => {
+    cell: ({ row }) => {
       return (
-        <div className=" flex items-center justify-end pr-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                size={'icon'}
-              >
-                <IconDotsVertical />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-              <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">Xoá</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div onClick={(e) => e.stopPropagation()}>
+          <ActionMenu room={row.original} />
         </div>
       );
     },
   },
 ];
+
+const ActionMenu = ({ room }: { room: Room }) => {
+  const dispatch = useAppDispatch();
+  const appNavigate = useCustomNavigate();
+  const { query } = useQueryParams<RoomQuery>();
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
+
+  const page = Number(query.page ?? ROOM_QUERY_DEFAULT.page);
+  const limit = Number(query.limit ?? ROOM_QUERY_DEFAULT.limit);
+  const search = query.search;
+  const status = query.status;
+  const apartmentId = query.apartmentId;
+
+  const roomId = room._id;
+  const roomName = room.roomName;
+
+  const handleDeleteRoom = async () => {
+    if (!roomId) return;
+
+    const deletePromise = dispatch(deleteRoom(roomId)).unwrap();
+
+    toast.promise(deletePromise, {
+      loading: `Đang xóa ${roomName}...`,
+      success: () => `Đã xóa ${roomName}`,
+      error: () => `Xóa ${roomName} thất bại`,
+    });
+
+    setIsDeleteConfirm(false);
+
+    try {
+      await deletePromise;
+
+      dispatch(getRooms({ page, limit, search, status, apartmentId }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUpdateApartment = () => {
+    if (!roomId) return;
+
+    appNavigate(`/rooms/${roomId}/edit`);
+  };
+
+  const handleViewApartmentDetail = () => {
+    if (!roomId) return;
+
+    appNavigate(`/rooms/${roomId}`);
+  };
+
+  return (
+    <div className=" flex items-center justify-end pr-2">
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+            size={'icon'}
+          >
+            <MoreHorizontalIcon />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align="end"
+          className="w-32"
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+
+              setIsDropdownOpen(false);
+
+              handleViewApartmentDetail();
+            }}
+          >
+            Chi tiết
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+
+              setIsDropdownOpen(false);
+
+              handleUpdateApartment();
+            }}
+          >
+            Chỉnh sửa
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={() => {
+              setIsDropdownOpen(false);
+
+              setTimeout(() => {
+                setIsDeleteConfirm(true);
+              }, 0);
+            }}
+          >
+            Xoá
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={isDeleteConfirm} onOpenChange={setIsDeleteConfirm}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive size-14">
+              <IconAlertTriangleFilled className="size-8" />
+            </AlertDialogMedia>
+
+            <AlertDialogTitle>Xóa phòng?</AlertDialogTitle>
+
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa{' '}
+              <span className="font-semibold text-foreground">{roomName}</span> không?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel variant="outline" onClick={() => setIsDeleteConfirm(false)}>
+              Bỏ qua
+            </AlertDialogCancel>
+
+            <AlertDialogAction variant="destructive" onClick={handleDeleteRoom}>
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
 
 const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
   const navigate = useNavigate();

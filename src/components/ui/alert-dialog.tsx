@@ -40,6 +40,7 @@ function AlertDialogContent({
     <AlertDialogPortal>
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Popup
+        initialFocus={false}
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
