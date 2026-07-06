@@ -6,7 +6,7 @@ import type {
   SortingState,
   VisibilityState,
 } from '@tanstack/react-table';
-import { Search, Settings2 } from 'lucide-react';
+import { Columns2, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -77,7 +77,7 @@ export interface DataTableDefaultProps<T> {
 const TableSkeleton = ({ colCount }: { colCount: number }) => {
   return (
     <>
-      {Array.from({ length: 8 }).map((_, i) => (
+      {Array.from({ length: 10 }).map((_, i) => (
         <TableRow key={i}>
           {Array.from({ length: colCount }).map((_, j) => (
             <TableCell key={j}>
@@ -182,9 +182,7 @@ export function DataTableDefault<T>({
   return (
     <div className="w-full">
       <div className="flex items-center pb-4 pt-1 gap-4">
-        <div className="flex items-center gap-4 flex-1">
-          {renderToolbarLeft && renderToolbarLeft(table)}
-
+        <div className="flex items-center gap-4">
           {enableSearch && (
             <div className="relative max-w-sm">
               <InputGroup>
@@ -202,6 +200,8 @@ export function DataTableDefault<T>({
               </InputGroup>
             </div>
           )}
+
+          {renderToolbarLeft && renderToolbarLeft(table)}
         </div>
 
         <div className="ml-auto flex items-center gap-4">
@@ -209,8 +209,8 @@ export function DataTableDefault<T>({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
-                  <Settings2 />
-                  Xem cột
+                  <Columns2 />
+                  <span className="hidden lg:block">Xem cột</span>
                 </Button>
               </DropdownMenuTrigger>
 

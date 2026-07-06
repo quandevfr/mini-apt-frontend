@@ -212,7 +212,10 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
                     name="apartmentId"
                     render={({ field }) => {
                       const selectedApt = (
-                        [{ label: 'Green homes mini', value: '0001' }] as ItemSelect[]
+                        apartments.map((apt) => ({
+                          label: apt.name,
+                          value: apt._id,
+                        })) as ItemSelect[]
                       ).find((apt) => apt.value === field.value);
 
                       return (

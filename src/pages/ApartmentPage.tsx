@@ -116,15 +116,15 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
       const STATUS_CONFIG = {
         active: {
           label: 'Hoạt động',
-          className: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400 ',
+          className: 'dark:bg-status-success-dark bg-status-success text-status-success-foreground',
         },
         inactive: {
           label: 'Dừng hoạt động',
-          className: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+          className: 'dark:bg-status-danger bg-status-danger text-status-danger-foreground',
         },
         suspended: {
           label: 'Tạm dừng vận hành',
-          className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400',
+          className: 'dark:bg-status-warning bg-status-warning text-status-warning-foreground',
         },
       };
 
@@ -397,7 +397,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
       )}
 
       <Button className={cn('btn-press-effect')} onClick={handleNavigateToCreate}>
-        <Plus /> Thêm mới
+        <Plus /> <span className={cn('hidden md:block')}>Thêm mới</span>
       </Button>
     </div>
   );
