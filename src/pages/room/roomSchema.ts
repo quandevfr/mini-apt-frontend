@@ -3,11 +3,11 @@ import { z } from 'zod';
 
 export const ROOM_STATUS: Item[] = [
   {
-    label: 'Phòng trống',
+    label: 'Sẵn sàng',
     value: 'AVAILABLE',
   },
   {
-    label: 'Đang ở',
+    label: 'Đang sử dụng',
     value: 'OCCUPIED',
   },
   {

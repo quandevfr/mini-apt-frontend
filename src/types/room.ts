@@ -61,7 +61,13 @@ export interface UploadSignatureRes {
 
 export interface Room extends Pick<
   BaseRoom,
-  'roomName' | 'maxPeople' | 'price' | 'electricityPrice' | 'waterPrice' | 'status'
+  | 'roomName'
+  | 'maxPeople'
+  | 'price'
+  | 'electricityPrice'
+  | 'waterPrice'
+  | 'waterCalculationType'
+  | 'status'
 > {
   _id: string;
   apartment: RoomApartmentSelected;

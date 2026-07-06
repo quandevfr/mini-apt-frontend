@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/attachment';
 import type { ImageItem } from '@/components/ui/imageUploader/imageTypes';
 import { formatFileSize } from '@/components/ui/imageUploader/imageUtils';
-import { Progress } from '@/components/ui/progress';
+// import { Progress } from '@/components/ui/progress';
 import { XIcon } from 'lucide-react';
 import React from 'react';
 
@@ -25,10 +25,10 @@ export const ImagePreview: React.FC<ImagePreviewProps> = React.memo(
     const url = isNew ? image.previewUrl : image.url;
     const name = isNew ? image.file.name : image.name || 'Ảnh đã lưu';
     const size = isNew ? formatFileSize(image.file.size) : null;
-    const progress = isNew ? image.progress : null;
+    // const progress = isNew ? image.progress : null;
 
     return (
-      <Attachment orientation="vertical" state="uploading">
+      <Attachment orientation="vertical">
         <AttachmentMedia variant="image">
           <img src={url} alt={name} loading="lazy" />
         </AttachmentMedia>
@@ -37,7 +37,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = React.memo(
           <AttachmentTitle>{name}</AttachmentTitle>
           {size && <AttachmentDescription>{size}</AttachmentDescription>}
 
-          <Progress value={progress} className="mt-2 h-1" />
+          {/* <Progress value={progress} className="mt-2 h-1" /> */}
         </AttachmentContent>
 
         <AttachmentActions>

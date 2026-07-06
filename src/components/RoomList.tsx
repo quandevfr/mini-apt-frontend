@@ -2,7 +2,7 @@
 import { IconDotsVertical } from '@tabler/icons-react';
 import type { ColumnDef, useReactTable } from '@tanstack/react-table';
 import { useNavigate } from 'react-router';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 // Components
 import { DataTableDefault, type DataTableDefaultQuery } from '@/components/DataTableDefault';
@@ -15,6 +15,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+  ComboboxValue,
+} from '@/components/ui/combobox';
+import {
+  Popover,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
+import { Badge } from '@/components/ui/badge';
 
 // Others
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -22,12 +49,15 @@ import { getRooms } from '@/features/room/roomThunk';
 import { PATHS } from '@/utils/constants/paths';
 import type { Room } from '@/types/room';
 import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/libs/utils';
 import { useQueryParams } from '@/hooks/useQueryParams';
 import type { RoomQuery } from '@/types/query';
 import { ROOM_QUERY_DEFAULT } from '@/utils/constants/query';
 import { vndFormat } from '@/utils/helpers/currencyHelper';
+import { ROOM_STATUS } from '@/pages/room/roomSchema';
+import { ChevronDown, Funnel, Plus } from 'lucide-react';
+import type { Item } from '@/types/common';
+import { getApartments } from '@/features/apartment/apartmentThunk';
 
 export const columns: ColumnDef<Room>[] = [
   {
@@ -63,7 +93,7 @@ export const columns: ColumnDef<Room>[] = [
     accessorKey: 'roomName',
     header: 'Phòng',
     cell: ({ row }) => (
-      <div className="capitalize font-semibold">{row.getValue('roomName') || EMPTY_CELL_VALUE}</div>
+      <div className="capitalize">{row.getValue('roomName') || EMPTY_CELL_VALUE}</div>
     ),
   },
   {
@@ -78,41 +108,63 @@ export const columns: ColumnDef<Room>[] = [
     header: () => <div className="text-right">Đơn giá điện</div>,
     cell: ({ row }) => {
       const { electricityPrice } = row.original;
-      return <div className="text-right">{vndFormat.format(electricityPrice)}</div>;
+      return (
+        <div className="inline-flex items-baseline justify-end w-full gap-0.5">
+          <span>{vndFormat.format(electricityPrice).trim()}</span>
+          <span className="text-muted-foreground">/kWh</span>
+        </div>
+      );
     },
+    size: 100,
   },
   {
     accessorKey: 'waterPrice',
     header: () => <div className="text-right">Đơn giá nước</div>,
     cell: ({ row }) => {
-      const { waterPrice } = row.original;
-      return <div className="text-right">{vndFormat.format(waterPrice)}</div>;
+      const { waterPrice, waterCalculationType } = row.original;
+
+      return (
+        <div className="inline-flex items-baseline justify-end w-full gap-0.5">
+          <span>{vndFormat.format(waterPrice).trim()}</span>
+          <span className="text-muted-foreground">
+            {waterCalculationType === 'PER_CUBIC' ? '/m³' : '/người'}
+          </span>
+        </div>
+      );
     },
+    size: 100,
   },
   {
     accessorKey: 'price',
     header: () => <div className="text-right">Giá thuê</div>,
     cell: ({ row }) => {
       const { price } = row.original;
-      return <div className="text-right font-semibold">{vndFormat.format(price)}</div>;
+
+      return (
+        <div className="inline-flex items-baseline justify-end w-full gap-0.5">
+          <span className="font-semibold">{vndFormat.format(price).trim()}</span>
+          <span className="text-muted-foreground">/tháng</span>
+        </div>
+      );
     },
+    size: 100,
   },
   {
     accessorKey: 'status',
-    header: () => <div className="text-left">Trạng thái</div>,
+    header: () => <div className="text-left pl-12">Trạng thái</div>,
     cell: ({ row }) => {
       const STATUS_CONFIG = {
         AVAILABLE: {
-          label: 'Phòng trống',
-          className: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400 ',
+          label: 'Sẵn sàng',
+          className: 'dark:bg-status-success-dark bg-status-success text-status-success-foreground',
         },
         OCCUPIED: {
-          label: 'Đang ở',
-          className: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+          label: 'Đang sử dụng',
+          className: 'dark:bg-status-info bg-status-info text-status-info-foreground',
         },
         MAINTENANCE: {
           label: 'Bảo trì',
-          className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400',
+          className: 'dark:bg-status-warning bg-status-warning text-status-warning-foreground',
         },
       };
 
@@ -121,16 +173,19 @@ export const columns: ColumnDef<Room>[] = [
       const config = STATUS_CONFIG[status] || EMPTY_CELL_VALUE;
 
       return (
-        <Badge
-          className={cn(
-            'flex items-center gap-1.5 px-2 py-1 capitalize w-fit font-medium pointer-events-none',
-            config.className
-          )}
-        >
-          <span>{config.label}</span>
-        </Badge>
+        <div className="pl-12">
+          <Badge
+            className={cn(
+              'flex items-center gap-1.5 px-2 py-1 capitalize w-fit font-medium pointer-events-none',
+              config.className
+            )}
+          >
+            <span className="text-nowrap">{config.label}</span>
+          </Badge>
+        </div>
       );
     },
+    size: 100,
   },
   {
     id: 'actions',
@@ -184,8 +239,132 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
         </Button>
       )}
 
-      <Button onClick={handleNavigateCreateForm}>Thêm mới</Button>
+      <Button className={cn('btn-press-effect')} onClick={handleNavigateCreateForm}>
+        <Plus /> <span className={cn('hidden md:block')}>Thêm mới</span>
+      </Button>
     </div>
+  );
+};
+
+const FilterFields = ({ className }: { className?: string }) => {
+  const { query, setQuery, removeQuery } = useQueryParams<RoomQuery>();
+
+  const { apartments, loading: apartmentLoading } = useAppSelector((state) => state.apartment);
+
+  const hasFilter = !!(query.apartmentId || query.status);
+
+  const selectedApt = (
+    apartments.map((apt) => ({ label: apt.name, value: apt._id })) as Item[]
+  ).find((apt) => apt.value === query.apartmentId);
+
+  return (
+    <div className={cn('flex items-center gap-4', className)}>
+      <Select
+        value={query.status || ''}
+        onValueChange={(value: string) => setQuery({ status: value, page: 1 })}
+      >
+        <SelectTrigger className={cn('w-full xl:w-[150px]')}>
+          <SelectValue placeholder="Trạng thái" />
+        </SelectTrigger>
+
+        <SelectContent>
+          <SelectGroup>
+            {ROOM_STATUS.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
+      <Combobox
+        key={query.apartmentId}
+        items={apartments.map((apt) => ({ label: apt.name, value: apt._id })) as Item[]}
+        itemToStringValue={(apt: Item) => apt.label}
+        value={selectedApt}
+        onValueChange={(item) => {
+          setQuery({ apartmentId: item?.value, page: 1 });
+        }}
+      >
+        <ComboboxTrigger
+          render={
+            <Button
+              variant="outline"
+              className={cn(
+                'justify-between font-normal w-full xl:w-[250px]',
+                !selectedApt && 'text-muted-foreground hover:text-muted-foreground'
+              )}
+            >
+              <ComboboxValue placeholder="Chung cư mini" />
+
+              {apartmentLoading.getList ? (
+                <Spinner />
+              ) : (
+                <ChevronDown className="w-4 h-4 opacity-50" />
+              )}
+            </Button>
+          }
+        />
+
+        <ComboboxContent>
+          <ComboboxInput showTrigger={false} placeholder="Chung cư mini" />
+
+          <ComboboxEmpty>Không có dữ liệu.</ComboboxEmpty>
+
+          <ComboboxList>
+            {(item) => (
+              <ComboboxItem key={item.value} value={item}>
+                {item.label}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+
+      {hasFilter && (
+        <Button
+          variant={'destructive'}
+          className={cn('btn-press-effect')}
+          onClick={() => removeQuery(['status', 'apartmentId'])}
+        >
+          Xóa bộ lọc
+        </Button>
+      )}
+    </div>
+  );
+};
+
+const RenderToolbarLeft = () => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const apartmentParams = { isGetAll: true };
+    dispatch(getApartments(apartmentParams));
+  }, [dispatch]);
+
+  return (
+    <React.Fragment>
+      <FilterFields className={cn('hidden xl:flex')} />
+
+      <div className={cn('xl:hidden')}>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant={'outline'}>
+              <Funnel />
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent align="start">
+            <PopoverHeader>
+              <PopoverTitle>Bộ lọc</PopoverTitle>
+            </PopoverHeader>
+
+            <FilterFields className="flex flex-col items-end gap-4" />
+          </PopoverContent>
+        </Popover>
+      </div>
+    </React.Fragment>
   );
 };
 
@@ -198,16 +377,20 @@ const RoomList = () => {
   const page = Number(query.page ?? ROOM_QUERY_DEFAULT.page);
   const limit = Number(query.limit ?? ROOM_QUERY_DEFAULT.limit);
   const search = query.search;
+  const status = query.status;
+  const apartmentId = query.apartmentId;
 
   useEffect(() => {
     const params = {
       page,
       limit,
       search,
+      status,
+      apartmentId,
     };
 
     dispatch(getRooms(params));
-  }, [dispatch, page, limit, search]);
+  }, [dispatch, page, limit, search, status, apartmentId]);
 
   const handleRowClick = (room: Room) => {
     console.log(`Clicked room: `, room);
@@ -238,6 +421,7 @@ const RoomList = () => {
       getRowId={(room, index) => room._id || `row-${index}`}
       loading={roomLoading.getList}
       renderToolbarRight={RenderToolbarRight}
+      renderToolbarLeft={RenderToolbarLeft}
       onQueryChange={handleQueryChange}
       defaultPage={page}
       defaultPageSize={limit}
