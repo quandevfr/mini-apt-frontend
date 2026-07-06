@@ -296,7 +296,7 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
               Bỏ qua
             </AlertDialogCancel>
             <AlertDialogAction variant="destructive" onClick={handleDeleteApartment}>
-              Xóa
+              Xóa vĩnh viễn
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -388,7 +388,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
                   Bỏ qua
                 </AlertDialogCancel>
                 <AlertDialogAction variant="destructive" onClick={handleDeleteApartments}>
-                  Xóa
+                  Xóa vĩnh viễn
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

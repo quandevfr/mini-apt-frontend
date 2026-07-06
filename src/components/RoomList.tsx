@@ -56,7 +56,7 @@ import {
 
 // Others
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { deleteRoom, getRooms } from '@/features/room/roomThunk';
+import { deleteRoom, deleteRooms, getRooms } from '@/features/room/roomThunk';
 import { PATHS } from '@/utils/constants/paths';
 import type { Room } from '@/types/room';
 import { EMPTY_CELL_VALUE } from '@/utils/constants/common';
@@ -345,7 +345,7 @@ const ActionMenu = ({ room }: { room: Room }) => {
             </AlertDialogCancel>
 
             <AlertDialogAction variant="destructive" onClick={handleDeleteRoom}>
-              Xóa
+              Xóa vĩnh viễn
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -356,22 +356,98 @@ const ActionMenu = ({ room }: { room: Room }) => {
 
 const RenderToolbarRight = (table: ReturnType<typeof useReactTable<Room>>) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const { loading: roomLoading } = useAppSelector((state) => state.room);
+  const { query } = useQueryParams<RoomQuery>();
+
+  const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
+
+  const page = Number(query.page ?? ROOM_QUERY_DEFAULT.page);
+  const limit = Number(query.limit ?? ROOM_QUERY_DEFAULT.limit);
+  const search = query.search;
+  const status = query.status;
+  const apartmentId = query.apartmentId;
+
   const selected = table.getSelectedRowModel().rows;
+  const ids = selected.map((s) => s.original._id).filter(Boolean) as string[];
 
   const handleNavigateCreateForm = () => {
     navigate(PATHS.PAGE.ROOMS.CREATE);
   };
 
+  const handleDeleteRooms = async () => {
+    if (ids.length === 0) return;
+
+    const deletePromise = dispatch(deleteRooms({ ids })).unwrap();
+
+    toast.promise(deletePromise, {
+      loading: `Đang xóa ${selected.length} phòng...`,
+      success: () => `Đã xóa ${selected.length} phòng`,
+      error: () => `Xóa phòng thất bại`,
+    });
+
+    setIsDeleteConfirm(false);
+
+    try {
+      await deletePromise;
+
+      table.resetRowSelection();
+
+      dispatch(getRooms({ page, limit, search, apartmentId, status }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="flex items-center gap-4">
       {selected.length > 0 && (
-        <Button
-          variant="destructive"
-          disabled={selected.length === 0}
-          onClick={() => console.log(selected)}
-        >
-          Xoá mục đã chọn ({selected.length})
-        </Button>
+        <React.Fragment>
+          <Button
+            variant="destructive"
+            className={cn('btn-press-effect')}
+            disabled={roomLoading.deleteMany.isSubmitting || selected.length === 0}
+            onClick={(e) => {
+              e.preventDefault();
+              setIsDeleteConfirm(true);
+            }}
+          >
+            {roomLoading.deleteMany.isSubmitting
+              ? `Đang xóa...`
+              : `Xoá mục đã chọn (${selected.length})`}
+          </Button>
+
+          <AlertDialog open={isDeleteConfirm} onOpenChange={setIsDeleteConfirm}>
+            <AlertDialogContent size="sm">
+              <AlertDialogHeader>
+                <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive size-14">
+                  <IconAlertTriangleFilled className="size-8" />
+                </AlertDialogMedia>
+
+                <AlertDialogTitle>Delete phòng?</AlertDialogTitle>
+
+                <AlertDialogDescription>
+                  Bạn có chắc chắn muốn xóa{' '}
+                  <span className="font-semibold text-foreground">
+                    {`${selected.length} phòng`}
+                  </span>{' '}
+                  đã chọn không?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel variant="outline" onClick={() => setIsDeleteConfirm(false)}>
+                  Bỏ qua
+                </AlertDialogCancel>
+
+                <AlertDialogAction variant="destructive" onClick={handleDeleteRooms}>
+                  Xóa vĩnh viễn
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </React.Fragment>
       )}
 
       <Button className={cn('btn-press-effect')} onClick={handleNavigateCreateForm}>

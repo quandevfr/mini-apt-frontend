@@ -1,4 +1,5 @@
 import { roomApi } from '@/apis/roomApi';
+import type { DeleteManyPayload } from '@/types/common';
 import type { RoomQuery } from '@/types/query';
 import type { CreateRoomReq } from '@/types/room';
 import { createAsyncThunk } from '@reduxjs/toolkit';
@@ -67,6 +68,19 @@ export const deleteRoom = createAsyncThunk(
       return res.data;
     } catch {
       return rejectWithValue('delete room failed');
+    }
+  }
+);
+
+export const deleteRooms = createAsyncThunk(
+  'rooms/delete-many',
+  async (body: DeleteManyPayload, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.deleteMany(body);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('delete rooms failed');
     }
   }
 );

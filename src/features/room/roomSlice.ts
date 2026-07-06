@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createRoom, deleteRoom, getRooms, uploadSignature } from './roomThunk';
+import { createRoom, deleteRoom, deleteRooms, getRooms, uploadSignature } from './roomThunk';
 import type { PaginationResponse } from '@/types/common';
 import type { Room } from '@/types/room';
 
@@ -99,6 +99,20 @@ const roomSlice = createSlice({
       })
       .addCase(deleteRoom.rejected, (state) => {
         state.loading.delete = null;
+      })
+
+      /** === DELELE MANY === */
+      .addCase(deleteRooms.pending, (state, action) => {
+        state.loading.deleteMany.isSubmitting = true;
+        state.loading.deleteMany.ids = action.meta.arg.ids;
+      })
+      .addCase(deleteRooms.fulfilled, (state) => {
+        state.loading.deleteMany.isSubmitting = false;
+        state.loading.deleteMany.ids = [];
+      })
+      .addCase(deleteRooms.rejected, (state) => {
+        state.loading.deleteMany.isSubmitting = false;
+        state.loading.deleteMany.ids = [];
       });
   },
 });

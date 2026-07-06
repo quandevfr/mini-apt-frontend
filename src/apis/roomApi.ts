@@ -1,4 +1,4 @@
-import type { ApiGetListResponse, ApiResponse } from '@/types/common';
+import type { ApiGetListResponse, ApiResponse, DeleteManyPayload } from '@/types/common';
 import axiosClient from './axiosClient';
 import type { CreateRoomReq, CreateRoomRes, Room, UploadSignatureRes } from '@/types/room';
 import axios from 'axios';
@@ -39,6 +39,13 @@ export const roomApi = {
 
   deleteById: async (id: string): Promise<ApiResponse<void>> => {
     return axiosClient.delete(`/v1/rooms/${id}`, {
+      headers: { 'Skip-Show_Toast': 'true' },
+    });
+  },
+
+  deleteMany: async (body: DeleteManyPayload): Promise<ApiResponse<void>> => {
+    return axiosClient.delete('/v1/rooms', {
+      data: body,
       headers: { 'Skip-Show_Toast': 'true' },
     });
   },
