@@ -93,17 +93,17 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
   },
   {
     accessorKey: 'totalRooms',
-    header: () => <div className="text-center">Số phòng</div>,
+    header: () => <div className="text-right">Số phòng</div>,
     cell: ({ row }) => (
-      <div className="capitalize text-center">{row.getValue('totalRooms') ?? EMPTY_CELL_VALUE}</div>
+      <div className="capitalize text-right">{row.getValue('totalRooms') ?? EMPTY_CELL_VALUE}</div>
     ),
     size: 100,
   },
   {
     accessorKey: 'availableRooms',
-    header: () => <div className="text-center">Còn trống</div>,
+    header: () => <div className="text-right">Còn trống</div>,
     cell: ({ row }) => (
-      <div className="capitalize text-center">
+      <div className="capitalize text-right">
         {row.getValue('availableRooms') ?? EMPTY_CELL_VALUE}
       </div>
     ),
@@ -111,20 +111,20 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
   },
   {
     accessorKey: 'status',
-    header: () => <div className="text-left">Trạng thái</div>,
+    header: () => <div className="text-left pl-8">Trạng thái</div>,
     cell: ({ row }) => {
       const STATUS_CONFIG = {
         active: {
           label: 'Hoạt động',
-          className: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-400 ',
+          className: 'dark:bg-status-success-dark bg-status-success text-status-success-foreground',
         },
         inactive: {
           label: 'Dừng hoạt động',
-          className: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+          className: 'dark:bg-status-danger bg-status-danger text-status-danger-foreground',
         },
         suspended: {
           label: 'Tạm dừng vận hành',
-          className: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400',
+          className: 'dark:bg-status-warning bg-status-warning text-status-warning-foreground',
         },
       };
 
@@ -133,14 +133,16 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
       const config = STATUS_CONFIG[status] || STATUS_CONFIG.inactive;
 
       return (
-        <Badge
-          className={cn(
-            'flex items-center gap-1.5 px-2 py-1 capitalize w-fit font-medium pointer-events-none',
-            config.className
-          )}
-        >
-          <span>{config.label}</span>
-        </Badge>
+        <div className="pl-8">
+          <Badge
+            className={cn(
+              'flex items-center gap-1.5 px-2 py-1 capitalize w-fit font-medium pointer-events-none',
+              config.className
+            )}
+          >
+            <span className="text-nowrap">{config.label}</span>
+          </Badge>
+        </div>
       );
     },
   },
@@ -296,7 +298,7 @@ const ActionMenu = ({ apartment }: { apartment: GetApartmentsResponse }) => {
               Bỏ qua
             </AlertDialogCancel>
             <AlertDialogAction variant="destructive" onClick={handleDeleteApartment}>
-              Xóa
+              Xóa vĩnh viễn
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -388,7 +390,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
                   Bỏ qua
                 </AlertDialogCancel>
                 <AlertDialogAction variant="destructive" onClick={handleDeleteApartments}>
-                  Xóa
+                  Xóa vĩnh viễn
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -397,7 +399,7 @@ const RenderToolbarRight = (table: ReturnType<typeof useReactTable<GetApartments
       )}
 
       <Button className={cn('btn-press-effect')} onClick={handleNavigateToCreate}>
-        <Plus /> Thêm mới
+        <Plus /> <span className={cn('hidden md:block')}>Thêm mới</span>
       </Button>
     </div>
   );
@@ -434,9 +436,16 @@ const ApartmentPage = () => {
   const handleQueryChange = (newQuery: DataTableDefaultQuery) => {
     console.log(`Query: ${JSON.stringify(newQuery)}`);
 
+    const currentSearch = query.search || '';
+    const incomingSearch = newQuery.search || '';
+
+    const isSearching = incomingSearch !== currentSearch;
+
+    const targetPage = isSearching ? 1 : newQuery.page;
+
     setQuery(
-      { page: newQuery.page, limit: newQuery.limit, search: newQuery.search },
-      { replace: newQuery.search !== query.search }
+      { page: targetPage, limit: newQuery.limit, search: newQuery.search },
+      { replace: isSearching }
     );
   };
 

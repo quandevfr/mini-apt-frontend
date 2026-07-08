@@ -61,7 +61,7 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
             path: PATHS.PAGE.APARTMENTS.UPDATE,
             element: <CreateApartmentPage />,
             handle: {
-              breadcrumb: 'Cập nhật chung cư mini',
+              breadcrumb: 'Chỉnh sửa chung cư mini',
             },
           },
           {
@@ -88,6 +88,13 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
             element: <CreateRoomPage />,
             handle: {
               breadcrumb: 'Tạo phòng',
+            },
+          },
+          {
+            path: PATHS.PAGE.ROOMS.UPDATE,
+            element: <CreateRoomPage />,
+            handle: {
+              breadcrumb: 'Chỉnh sửa phòng',
             },
           },
         ],

@@ -1,11 +1,112 @@
-import { getRoomsApi } from '@/apis/roomApi';
+import { roomApi } from '@/apis/roomApi';
+import type { DeleteManyPayload } from '@/types/common';
+import type { RoomQuery } from '@/types/query';
+import type { CreateRoomReq, UpdateRoomReq } from '@/types/room';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-export const getRooms = createAsyncThunk('rooms', async (_, { rejectWithValue }) => {
-  try {
-    const res = await getRoomsApi();
-    return res.data;
-  } catch {
-    return rejectWithValue('get rooms failed');
+export const createRoom = createAsyncThunk(
+  'rooms/create',
+  async (body: CreateRoomReq, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.createRoom(body);
+
+      return res;
+    } catch {
+      return rejectWithValue('create apartment failed');
+    }
   }
-});
+);
+
+export const uploadSignature = createAsyncThunk(
+  'rooms/upload-signature',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.getUploadSignature();
+
+      return res;
+    } catch {
+      return rejectWithValue('get upload signature failed');
+    }
+  }
+);
+
+export const uploadCloudinary = createAsyncThunk(
+  'rooms/upload-cloudinary',
+  async (
+    { cloudName, cloudinaryData }: { cloudName: string; cloudinaryData: FormData },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await roomApi.uploadCloudinary({ cloudName, cloudinaryData });
+
+      return res;
+    } catch {
+      return rejectWithValue('upload cloudinary failed');
+    }
+  }
+);
+
+export const getRooms = createAsyncThunk(
+  'rooms/get',
+  async (params: RoomQuery | undefined = undefined, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.getRooms(params);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('get rooms failed');
+    }
+  }
+);
+
+export const getRoomById = createAsyncThunk(
+  'rooms/get-room-by-id',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.getRoomById(id);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('get room detail failed');
+    }
+  }
+);
+
+export const deleteRoom = createAsyncThunk(
+  'rooms/delete',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.deleteById(id);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('delete room failed');
+    }
+  }
+);
+
+export const deleteRooms = createAsyncThunk(
+  'rooms/delete-many',
+  async (body: DeleteManyPayload, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.deleteMany(body);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('delete rooms failed');
+    }
+  }
+);
+
+export const updateRoom = createAsyncThunk(
+  'rooms/update',
+  async ({ id, body }: { id: string; body: UpdateRoomReq }, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.updateRoom(id, body);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('update room failed');
+    }
+  }
+);
