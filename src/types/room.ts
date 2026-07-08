@@ -3,6 +3,10 @@ interface Asset {
   status: string;
 }
 
+interface WithId {
+  _id: string;
+}
+
 export interface Image {
   url: string;
   name?: string;
@@ -45,9 +49,17 @@ export interface BaseRoom {
 }
 
 export type CreateRoomReq = BaseRoom;
-export interface CreateRoomRes extends Omit<BaseRoom, 'apartmentId' | 'quantity'> {
+export interface CreateRoomRes extends Omit<
+  BaseRoom,
+  'apartmentId' | 'quantity' | 'images' | 'assets' | 'customFee'
+> {
   _id: string;
   apartment: RoomApartmentSelected;
+
+  images?: (Image & WithId)[];
+  assets?: (Asset & WithId)[];
+  customFee?: (CustomFee & WithId)[];
+
   createdAt: string;
   updatedAt: string;
 }
@@ -72,3 +84,7 @@ export interface Room extends Pick<
   _id: string;
   apartment: RoomApartmentSelected;
 }
+
+export type UpdateRoomReq = Partial<BaseRoom>;
+export type UpdateRoomRes = CreateRoomRes;
+export type GetByIdRes = CreateRoomRes;

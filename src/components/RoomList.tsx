@@ -198,7 +198,6 @@ export const columns: ColumnDef<Room>[] = [
         </div>
       );
     },
-    size: 100,
   },
   {
     id: 'actions',
@@ -256,13 +255,13 @@ const ActionMenu = ({ room }: { room: Room }) => {
   const handleUpdateApartment = () => {
     if (!roomId) return;
 
-    appNavigate(`/rooms/${roomId}/edit`);
+    appNavigate(PATHS.PAGE.ROOMS.UPDATE.replace(':id', roomId));
   };
 
   const handleViewApartmentDetail = () => {
     if (!roomId) return;
 
-    appNavigate(`/rooms/${roomId}`);
+    appNavigate(PATHS.PAGE.ROOMS.DETAILS.replace(':id', roomId));
   };
 
   return (

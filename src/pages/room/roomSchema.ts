@@ -115,7 +115,7 @@ export const updateRoomSchema = createRoomSchema
   .extend({
     assets: z.array(assetSchema.extend({ id: z.string().optional() })).default([]),
     customFees: z.array(customFeeSchema.extend({ id: z.string().optional() })).default([]),
-    images: z.array(z.url({ error: 'URL ảnh không hợp lệ' })).default([]),
+    images: z.array(z.any()).default([]),
   });
 
 export type CreateRoomValues = z.infer<typeof createRoomSchema>;

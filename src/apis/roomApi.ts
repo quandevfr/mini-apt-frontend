@@ -1,6 +1,14 @@
 import type { ApiGetListResponse, ApiResponse, DeleteManyPayload } from '@/types/common';
 import axiosClient from './axiosClient';
-import type { CreateRoomReq, CreateRoomRes, Room, UploadSignatureRes } from '@/types/room';
+import type {
+  CreateRoomReq,
+  CreateRoomRes,
+  GetByIdRes,
+  Room,
+  UpdateRoomReq,
+  UpdateRoomRes,
+  UploadSignatureRes,
+} from '@/types/room';
 import axios from 'axios';
 import type { RoomQuery } from '@/types/query';
 
@@ -37,6 +45,10 @@ export const roomApi = {
     return axiosClient.get('/v1/rooms', { params });
   },
 
+  getRoomById: async (id: string): Promise<ApiResponse<GetByIdRes>> => {
+    return axiosClient.get(`/v1/rooms/${id}`);
+  },
+
   deleteById: async (id: string): Promise<ApiResponse<void>> => {
     return axiosClient.delete(`/v1/rooms/${id}`, {
       headers: { 'Skip-Show_Toast': 'true' },
@@ -48,5 +60,9 @@ export const roomApi = {
       data: body,
       headers: { 'Skip-Show_Toast': 'true' },
     });
+  },
+
+  updateRoom: async (id: string, body: UpdateRoomReq): Promise<ApiResponse<UpdateRoomRes>> => {
+    return axiosClient.patch(`/v1/rooms/${id}`, body);
   },
 };

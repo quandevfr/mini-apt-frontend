@@ -1,11 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createRoom, deleteRoom, deleteRooms, getRooms, uploadSignature } from './roomThunk';
+import {
+  createRoom,
+  deleteRoom,
+  deleteRooms,
+  getRoomById,
+  getRooms,
+  updateRoom,
+  uploadSignature,
+} from './roomThunk';
 import type { PaginationResponse } from '@/types/common';
-import type { Room } from '@/types/room';
+import type { GetByIdRes, Room } from '@/types/room';
 
 interface RoomState {
   rooms: Room[];
   pagination: PaginationResponse;
+  roomDetail: GetByIdRes | null;
+
   loading: {
     getList: boolean;
     getDetail: boolean;
@@ -30,6 +40,8 @@ const initialState: RoomState = {
     hasNext: false,
     hasPrev: false,
   },
+  roomDetail: null,
+
   loading: {
     getList: false,
     getDetail: false,
@@ -52,6 +64,9 @@ const roomSlice = createSlice({
       state.rooms = [];
       state.pagination = initialState.pagination;
     },
+    resetRoomDetail(state) {
+      state.roomDetail = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -68,6 +83,18 @@ const roomSlice = createSlice({
         state.loading.getList = false;
       })
 
+      /** === GET DETAIL === */
+      .addCase(getRoomById.pending, (state) => {
+        state.loading.getDetail = true;
+      })
+      .addCase(getRoomById.fulfilled, (state, action) => {
+        state.loading.getDetail = false;
+        state.roomDetail = action.payload;
+      })
+      .addCase(getRoomById.rejected, (state) => {
+        state.loading.getDetail = false;
+      })
+
       /** === CREATE === */
       .addCase(createRoom.pending, (state) => {
         state.loading.create = true;
@@ -77,6 +104,17 @@ const roomSlice = createSlice({
       })
       .addCase(createRoom.rejected, (state) => {
         state.loading.create = false;
+      })
+
+      /** === UPDATE === */
+      .addCase(updateRoom.pending, (state) => {
+        state.loading.update = true;
+      })
+      .addCase(updateRoom.fulfilled, (state) => {
+        state.loading.update = false;
+      })
+      .addCase(updateRoom.rejected, (state) => {
+        state.loading.update = false;
       })
 
       /** === GET UPLOAD SIGNATURE === */

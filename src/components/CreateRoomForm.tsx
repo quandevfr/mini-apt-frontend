@@ -1,7 +1,7 @@
 // Libs
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useEffect, useState } from 'react';
-import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
+import { Controller, useFieldArray, useForm, useWatch, type Resolver } from 'react-hook-form';
 import { Check, ChevronLeftIcon, ChevronsUpDown, PlusIcon, TrashIcon } from 'lucide-react';
 import { NumericFormat } from 'react-number-format';
 
@@ -37,48 +37,65 @@ import {
   createRoomSchema,
   ROOM_BILLING_TYPE,
   ROOM_STATUS,
+  updateRoomSchema,
   type CreateRoomValues,
 } from '@/pages/room/roomSchema';
 import { useCustomNavigate } from '@/hooks/useCustomNavigate';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { createRoom, uploadCloudinary, uploadSignature } from '@/features/room/roomThunk';
+import {
+  createRoom,
+  getRoomById,
+  updateRoom,
+  uploadCloudinary,
+  uploadSignature,
+} from '@/features/room/roomThunk';
 import type { Image } from '@/types/room';
 import { useParams } from 'react-router';
 import { PATHS } from '@/utils/constants/paths';
 import { getApartments } from '@/features/apartment/apartmentThunk';
 import { Spinner } from '@/components/ui/spinner';
 import { useGlobalLoading } from '@/hooks/useGlobalLoading';
+import CreateRoomFormSkeleton from '@/components/skeleton/CreateRoomFormSkeleton';
+import type { ImageItem } from '@/components/ui/imageUploader/imageTypes';
+import { createExistingImage } from '@/components/ui/imageUploader/imageUtils';
+
+const initialValues = {
+  apartmentId: '',
+  roomName: '',
+  area: undefined,
+  maxPeople: undefined,
+  status: 'AVAILABLE',
+  price: undefined,
+  deposit: undefined,
+  internetFee: undefined,
+  cleaningFee: undefined,
+  laundryFee: undefined,
+  parkingFee: undefined,
+  electricityPrice: undefined,
+  initialElectricityIndex: undefined,
+  waterCalculationType: 'PER_CUBIC',
+  waterPrice: undefined,
+  initialWaterIndex: undefined,
+  assets: [{ name: '', status: '' }],
+  images: [],
+  customFees: [{ name: '', price: undefined, type: 'PER_ROOM' }],
+  quantity: 1,
+} as unknown as CreateRoomValues;
 
 const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) => {
+  const { id: roomId } = useParams();
+  const isUpdate = !!roomId;
+
   const {
     control,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, dirtyFields },
   } = useForm<CreateRoomValues>({
-    resolver: zodResolver(createRoomSchema),
-    defaultValues: {
-      apartmentId: '',
-      roomName: '',
-      area: undefined,
-      maxPeople: undefined,
-      status: 'AVAILABLE',
-      price: undefined,
-      deposit: undefined,
-      internetFee: undefined,
-      cleaningFee: undefined,
-      laundryFee: undefined,
-      parkingFee: undefined,
-      electricityPrice: undefined,
-      initialElectricityIndex: undefined,
-      waterCalculationType: 'PER_CUBIC',
-      waterPrice: undefined,
-      initialWaterIndex: undefined,
-      assets: [{ name: '', status: '' }],
-      images: [],
-      customFees: [{ name: '', price: undefined, type: 'PER_ROOM' }],
-      quantity: 1,
-    } as unknown as CreateRoomValues,
+    resolver: zodResolver(
+      isUpdate ? updateRoomSchema : createRoomSchema
+    ) as Resolver<CreateRoomValues>,
+    defaultValues: initialValues,
   });
 
   const apartmentId = useWatch({
@@ -95,8 +112,6 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
   const isMobile = useIsMobile();
   const appNavigate = useCustomNavigate();
   const dispatch = useAppDispatch();
-  const { id: roomId } = useParams();
-  const isUpdate = !!roomId;
   const { startLoading, stopLoading, isLoading: isGlobalLoading } = useGlobalLoading();
 
   const [openApartment, setOpenApartment] = useState<boolean>(false);
@@ -108,13 +123,37 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
     remove: removeAsset,
   } = useFieldArray({ control, name: 'assets' });
 
-  const { loading: roomLoading } = useAppSelector((state) => state.room);
+  const { loading: roomLoading, roomDetail } = useAppSelector((state) => state.room);
   const { loading: apartmentLoading, apartments } = useAppSelector((state) => state.apartment);
 
   useEffect(() => {
-    const apartmentParams = { isGetAll: true };
-    dispatch(getApartments(apartmentParams));
-  }, [dispatch]);
+    const fetchInitialData = async () => {
+      const apartmentParams = { isGetAll: true };
+      await dispatch(getApartments(apartmentParams));
+
+      if (isUpdate) {
+        const result = await dispatch(getRoomById(roomId)).unwrap();
+        const existingImages: ImageItem[] = [];
+
+        result.images?.forEach((img) => {
+          const { _id: id, ...rest } = img;
+          existingImages.push(createExistingImage({ id, ...rest }));
+        });
+
+        reset({
+          ...(result as unknown as CreateRoomValues),
+          apartmentId: result.apartment._id,
+          images: existingImages,
+        });
+      } else {
+        reset(initialValues);
+      }
+    };
+
+    fetchInitialData();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, roomId, reset]);
 
   const onSubmit = async (data: CreateRoomValues) => {
     startLoading();
@@ -125,31 +164,52 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
         for (const image of data.images) {
           const { file } = image;
 
-          const result = await dispatch(uploadSignature()).unwrap();
-          const { apiKey, cloudName, signature, timestamp } = result.data;
+          if (image.url && !image.file) {
+            imageUrls.push({
+              url: image.url,
+              size: image.size,
+              mimeType: image.mimeType,
+              name: image.name,
+            });
+            continue;
+          }
 
-          const cloudinaryData = new FormData();
-          cloudinaryData.append('file', file);
-          cloudinaryData.append('folder', 'rooms');
-          cloudinaryData.append('timestamp', timestamp.toString());
-          cloudinaryData.append('upload_preset', 'room_preset_signed');
-          cloudinaryData.append('api_key', apiKey);
-          cloudinaryData.append('signature', signature);
+          if (file) {
+            const result = await dispatch(uploadSignature()).unwrap();
+            const { apiKey, cloudName, signature, timestamp } = result.data;
 
-          const res = await dispatch(uploadCloudinary({ cloudName, cloudinaryData })).unwrap();
-          const { secure_url, bytes, display_name, resource_type, format } = res.data;
+            const cloudinaryData = new FormData();
+            cloudinaryData.append('file', file);
+            cloudinaryData.append('folder', 'rooms');
+            cloudinaryData.append('timestamp', timestamp.toString());
+            cloudinaryData.append('upload_preset', 'room_preset_signed');
+            cloudinaryData.append('api_key', apiKey);
+            cloudinaryData.append('signature', signature);
 
-          imageUrls.push({
-            url: secure_url,
-            size: bytes,
-            mimeType: `${resource_type}/${format}`,
-            name: display_name,
-          });
+            const res = await dispatch(uploadCloudinary({ cloudName, cloudinaryData })).unwrap();
+            const { secure_url, bytes, display_name, resource_type, format } = res.data;
+
+            imageUrls.push({
+              url: secure_url,
+              size: bytes,
+              mimeType: `${resource_type}/${format}`,
+              name: display_name,
+            });
+          }
         }
       }
 
       if (isUpdate) {
-        // Update
+        const changeData = Object.fromEntries(
+          Object.keys(dirtyFields).map((key) => [key, data[key as keyof CreateRoomValues]])
+        );
+
+        await dispatch(
+          updateRoom({
+            id: roomId,
+            body: { ...changeData, images: imageUrls },
+          })
+        ).unwrap();
       } else {
         await dispatch(createRoom({ ...data, images: imageUrls })).unwrap();
 
@@ -168,6 +228,9 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
     appNavigate(PATHS.PAGE.ROOMS.INDEX);
   };
 
+  if ((isUpdate && apartmentLoading.getList) || roomLoading.getDetail)
+    return <CreateRoomFormSkeleton />;
+
   return (
     <form
       id="createRoomForm"
@@ -185,7 +248,9 @@ const CreateRoomForm = ({ className, ...props }: React.ComponentProps<'form'>) =
           <ChevronLeftIcon />
         </Button>
 
-        <div className={cn('font-semibold line-clamp-1 capitalize')}>Tạo Phòng</div>
+        <div className={cn('font-semibold line-clamp-1 capitalize')}>
+          {isUpdate ? roomDetail?.roomName : 'Tạo phòng'}
+        </div>
       </div>
 
       <FieldSet disabled={roomLoading.create || isGlobalLoading}>

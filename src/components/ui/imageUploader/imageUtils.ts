@@ -16,11 +16,16 @@ export const createNewImage = (file: File): NewImage => {
 /**
  * Chuyển đổi một URL từ API thành cấu trúc ExistingImage
  */
-export const createExistingImage = (url: string, id?: string): ExistingImage => {
+export const createExistingImage = (
+  params: Omit<Partial<ExistingImage>, 'type'> & { url: string }
+): ExistingImage => {
+  const { url, id, ...rest } = params;
+
   return {
     id: id || crypto.randomUUID(),
     type: 'existing',
     url,
+    ...rest,
   };
 };
 

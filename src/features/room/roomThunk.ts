@@ -1,7 +1,7 @@
 import { roomApi } from '@/apis/roomApi';
 import type { DeleteManyPayload } from '@/types/common';
 import type { RoomQuery } from '@/types/query';
-import type { CreateRoomReq } from '@/types/room';
+import type { CreateRoomReq, UpdateRoomReq } from '@/types/room';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
 export const createRoom = createAsyncThunk(
@@ -59,6 +59,19 @@ export const getRooms = createAsyncThunk(
   }
 );
 
+export const getRoomById = createAsyncThunk(
+  'rooms/get-room-by-id',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.getRoomById(id);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('get room detail failed');
+    }
+  }
+);
+
 export const deleteRoom = createAsyncThunk(
   'rooms/delete',
   async (id: string, { rejectWithValue }) => {
@@ -81,6 +94,19 @@ export const deleteRooms = createAsyncThunk(
       return res.data;
     } catch {
       return rejectWithValue('delete rooms failed');
+    }
+  }
+);
+
+export const updateRoom = createAsyncThunk(
+  'rooms/update',
+  async ({ id, body }: { id: string; body: UpdateRoomReq }, { rejectWithValue }) => {
+    try {
+      const res = await roomApi.updateRoom(id, body);
+
+      return res.data;
+    } catch {
+      return rejectWithValue('update room failed');
     }
   }
 );

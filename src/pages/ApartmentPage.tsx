@@ -93,17 +93,17 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
   },
   {
     accessorKey: 'totalRooms',
-    header: () => <div className="text-center">Số phòng</div>,
+    header: () => <div className="text-right">Số phòng</div>,
     cell: ({ row }) => (
-      <div className="capitalize text-center">{row.getValue('totalRooms') ?? EMPTY_CELL_VALUE}</div>
+      <div className="capitalize text-right">{row.getValue('totalRooms') ?? EMPTY_CELL_VALUE}</div>
     ),
     size: 100,
   },
   {
     accessorKey: 'availableRooms',
-    header: () => <div className="text-center">Còn trống</div>,
+    header: () => <div className="text-right">Còn trống</div>,
     cell: ({ row }) => (
-      <div className="capitalize text-center">
+      <div className="capitalize text-right">
         {row.getValue('availableRooms') ?? EMPTY_CELL_VALUE}
       </div>
     ),
@@ -111,7 +111,7 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
   },
   {
     accessorKey: 'status',
-    header: () => <div className="text-left">Trạng thái</div>,
+    header: () => <div className="text-left pl-8">Trạng thái</div>,
     cell: ({ row }) => {
       const STATUS_CONFIG = {
         active: {
@@ -133,14 +133,16 @@ export const columns: ColumnDef<GetApartmentsResponse>[] = [
       const config = STATUS_CONFIG[status] || STATUS_CONFIG.inactive;
 
       return (
-        <Badge
-          className={cn(
-            'flex items-center gap-1.5 px-2 py-1 capitalize w-fit font-medium pointer-events-none',
-            config.className
-          )}
-        >
-          <span>{config.label}</span>
-        </Badge>
+        <div className="pl-8">
+          <Badge
+            className={cn(
+              'flex items-center gap-1.5 px-2 py-1 capitalize w-fit font-medium pointer-events-none',
+              config.className
+            )}
+          >
+            <span className="text-nowrap">{config.label}</span>
+          </Badge>
+        </div>
       );
     },
   },

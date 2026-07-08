@@ -7,6 +7,7 @@ export interface ExistingImage {
   url: string;
   name?: string;
   size?: number;
+  mimeType?: string;
 }
 
 /**
@@ -18,6 +19,7 @@ export interface NewImage {
   file: File;
   previewUrl: string;
   progress?: number;
+  mimeType?: string;
 }
 
 export type ImageItem = ExistingImage | NewImage;
