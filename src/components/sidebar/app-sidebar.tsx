@@ -54,6 +54,11 @@ const data = {
   navManagementGroupName: 'Quản lý vận hành',
   navManagement: [
     {
+      title: 'Quản lý nhân sự',
+      url: PATHS.PAGE.MANAGERS.INDEX,
+      icon: Users,
+    },
+    {
       title: 'Chung cư mini',
       url: PATHS.PAGE.APARTMENTS.INDEX,
       icon: Building,
@@ -156,6 +161,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile, state } = useSidebar();
   const isCollapsed = state === 'collapsed';
 
+  const filteredNavData = React.useMemo(() => {
+    const isAdmin = user?.roles?.includes('ADMIN');
+
+    if (!isAdmin) {
+      return {
+        navOverview: data.navOverview,
+        navManagement: data.navManagement.filter((item) => item.url !== PATHS.PAGE.MANAGERS.INDEX),
+        navFinanceAndSupport: data.navFinanceAndSupport,
+      };
+    }
+
+    return {
+      navOverview: data.navOverview,
+      navManagement: data.navManagement,
+      navFinanceAndSupport: data.navFinanceAndSupport,
+    };
+  }, [user?.roles]);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -193,10 +216,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent className="beautiful-scrollbar">
-        <NavMainButton items={data.navOverview} groupName={data.navOverviewGroupName} />
-        <NavMainButton items={data.navManagement} groupName={data.navManagementGroupName} />
+        <NavMainButton items={filteredNavData.navOverview} groupName={data.navOverviewGroupName} />
         <NavMainButton
-          items={data.navFinanceAndSupport}
+          items={filteredNavData.navManagement}
+          groupName={data.navManagementGroupName}
+        />
+        <NavMainButton
+          items={filteredNavData.navFinanceAndSupport}
           groupName={data.navFinanceAndSupportGroupName}
         />
         {/* <NavMain items={data.navMain} /> */}

@@ -6,9 +6,12 @@ export const ERROR_MESSAGES: Record<string, string> = {
   AUTH_TOKEN_EXPIRED: 'Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.',
 
   // Lỗi hệ thống chung
-  INTERNAL_SERVER_ERROR: 'Hệ thống đang bận. Vui lòng thử lại sau ít phút.',
-  NETWORK_ERROR: 'Kết nối mạng không ổn định. Vui lòng kiểm tra lại.',
-  UNKNOWN_ERROR: 'Đã có lỗi xảy ra. Vui lòng liên hệ hỗ trợ.',
+  INTERNAL_SERVER_ERROR:
+    'Hệ thống đang được bảo trì hoặc gặp gián đoạn tạm thời. Vui lòng thử lại sau!',
+  TIMEOUT_ERROR: 'Yêu cầu quá thời gian xử lý. Vui lòng kiểm tra lại đường truyền hoặc thử lại!',
+  NETWORK_ERROR:
+    'Thiết bị của bạn đã mất kết nối Internet. Vui lòng kiểm tra lại internet và thử lại!',
+  UNKNOWN_ERROR: 'Đã có lỗi xảy ra. Vui lòng thử lại sau!',
 };
 
 export const getErrorMessage = (code: string | undefined): string => {

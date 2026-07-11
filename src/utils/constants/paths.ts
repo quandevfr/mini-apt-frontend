@@ -14,6 +14,10 @@ export const PATHS = {
   PAGE: {
     DASHBOARD: '/',
     SENT_MESSAGE: '/sent-message',
+    MANAGERS: {
+      INDEX: '/managers',
+      CREATE: '/managers/create',
+    },
     APARTMENTS: {
       INDEX: '/apartments',
       CREATE: '/apartments/create',

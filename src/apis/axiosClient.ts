@@ -85,7 +85,19 @@ axiosClient.interceptors.response.use(
     // Do something with response error
 
     if (!error.response) {
-      toast.error(getErrorMessage('NETWORK_ERROR'));
+      if (typeof window !== 'undefined' && !navigator.onLine) {
+        toast.error(getErrorMessage('NETWORK_ERROR'));
+        return Promise.reject(error);
+      }
+
+      if (error.code === 'ERR_NETWORK') {
+        toast.error(getErrorMessage('INTERNAL_SERVER_ERROR'));
+      } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        toast.error(getErrorMessage('TIMEOUT_ERROR'));
+      } else {
+        toast.error(getErrorMessage('UNKNOWN_ERROR'));
+      }
+
       return Promise.reject(error);
     }
 
@@ -93,6 +105,13 @@ axiosClient.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
     // const data = error.response?.data;
+
+    if (status === 503 || error.code === 'ERR_NETWORK' || status >= 500) {
+      const event = new CustomEvent('api-global-error', { detail: error });
+      window.dispatchEvent(event);
+
+      return Promise.reject(error);
+    }
 
     const AUTH_EXCLUDE_PATHS = [
       PATHS.AUTH.SIGN_IN,
@@ -154,14 +173,6 @@ axiosClient.interceptors.response.use(
 
     const errorMessage = getErrorMessage(errorCode);
     toast.error(errorMessage);
-
-    // if (data?.code && ERROR_MESSAGE_MAP[data.code]) {
-    //   toast.error(ERROR_MESSAGE_MAP[data.code]);
-    // } else if (data?.message) {
-    //   toast.error(data?.message);
-    // } else {
-    //   toast.error('Có lỗi xảy ra, vui lòng thử lại!');
-    // }
 
     return Promise.reject(error);
   }
