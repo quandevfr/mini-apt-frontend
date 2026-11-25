@@ -15,6 +15,8 @@ const CreateTenantPage = lazy(() => import('@/pages/tenant/CreateTenantPage'));
 const TenantPage = lazy(() => import('@/pages/TenantPage'));
 const ManagerPage = lazy(() => import('@/pages/manager/ManagerPage'));
 const CreateManagerPage = lazy(() => import('@/pages/manager/CreateManagerPage'));
+const ContractPage = lazy(() => import('@/pages/ContractPage'));
+const CreateContractPage = lazy(() => import('@/pages/contract/CreateContractPage'));
 
 // Others
 import { PATHS } from '@/utils/constants/paths';
@@ -116,6 +118,25 @@ export const PRIVATE_ROUTES: IPrivateRouteObject[] = [
             element: <CreateTenantPage />,
             handle: {
               breadcrumb: 'Thêm người thuê',
+            },
+          },
+        ],
+      },
+      {
+        path: PATHS.PAGE.CONTRACTS.INDEX,
+        handle: {
+          breadcrumb: 'Hợp đồng thuê phòng',
+        },
+        children: [
+          {
+            index: true,
+            element: <ContractPage />,
+          },
+          {
+            path: PATHS.PAGE.CONTRACTS.CREATE,
+            element: <CreateContractPage />,
+            handle: {
+              breadcrumb: 'Hợp đồng mới',
             },
           },
         ],

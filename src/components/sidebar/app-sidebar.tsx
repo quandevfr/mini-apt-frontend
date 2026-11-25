@@ -5,9 +5,12 @@ import {
   FileText,
   FileX,
   GalleryVerticalEnd,
-  LayoutDashboard,
   MessageCircleMore,
   Users,
+  FilePenLine,
+  ReceiptText,
+  HardHat,
+  LayoutDashboard,
 } from 'lucide-react';
 
 // import { NavMain } from '@/components/sidebar/nav-main';
@@ -40,12 +43,12 @@ const data = {
   navOverviewGroupName: 'Tổng quan',
   navOverview: [
     {
-      title: 'Thống kê',
+      title: 'Trang chủ',
       url: PATHS.PAGE.DASHBOARD,
       icon: LayoutDashboard,
     },
     {
-      title: 'Gửi thông báo',
+      title: 'Thông báo',
       url: PATHS.PAGE.SENT_MESSAGE,
       icon: MessageCircleMore,
     },
@@ -73,6 +76,11 @@ const data = {
       url: PATHS.PAGE.TENANTS.INDEX,
       icon: Users,
     },
+    {
+      title: 'Hợp đồng',
+      url: PATHS.PAGE.CONTRACTS.INDEX,
+      icon: FilePenLine,
+    },
   ],
   // Nhóm 3: Tài chính & chăm sóc khách hàng
   navFinanceAndSupportGroupName: 'Tài chính & Yêu cầu',
@@ -80,12 +88,12 @@ const data = {
     {
       title: 'Hóa đơn thanh toán',
       url: PATHS.PAGE.INVOICES,
-      icon: FileText,
+      icon: ReceiptText,
     },
     {
       title: 'Yêu cầu / Báo hỏng',
       url: PATHS.PAGE.REQUEST,
-      icon: FileX,
+      icon: HardHat,
     },
   ],
   navMain: [

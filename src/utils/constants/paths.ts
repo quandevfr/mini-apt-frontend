@@ -34,6 +34,10 @@ export const PATHS = {
       INDEX: '/tenants',
       CREATE: '/tenants/create',
     },
+    CONTRACTS: {
+      INDEX: '/contracts',
+      CREATE: '/contracts/create',
+    },
     INVOICES: '/invoices',
     REQUEST: '/requests',
   },

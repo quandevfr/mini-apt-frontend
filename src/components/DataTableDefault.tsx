@@ -181,62 +181,64 @@ export function DataTableDefault<T>({
 
   return (
     <div className="w-full">
-      <div className="flex items-center pb-4 pt-1 gap-4">
-        <div className="flex items-center gap-4">
-          {enableSearch && (
-            <div className="relative max-w-sm">
-              <InputGroup>
-                <InputGroupInput
-                  type="text"
-                  placeholder="Tìm kiếm..."
-                  className="sm:w-[250px]"
-                  value={searchKey}
-                  onChange={(event) => setSearchKey(event.target.value)}
-                />
+      {(enableSearch || enableColumnVisibility || renderToolbarLeft || renderToolbarRight) && (
+        <div className="flex items-center pb-4 pt-1 gap-4">
+          <div className="flex items-center gap-4">
+            {enableSearch && (
+              <div className="relative max-w-sm">
+                <InputGroup>
+                  <InputGroupInput
+                    type="text"
+                    placeholder="Tìm kiếm..."
+                    className="sm:w-[250px]"
+                    value={searchKey}
+                    onChange={(event) => setSearchKey(event.target.value)}
+                  />
 
-                <InputGroupAddon>
-                  <Search />
-                </InputGroupAddon>
-              </InputGroup>
-            </div>
-          )}
+                  <InputGroupAddon>
+                    <Search />
+                  </InputGroupAddon>
+                </InputGroup>
+              </div>
+            )}
 
-          {renderToolbarLeft && renderToolbarLeft(table)}
+            {renderToolbarLeft && renderToolbarLeft(table)}
+          </div>
+
+          <div className="ml-auto flex items-center gap-4">
+            {enableColumnVisibility && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="ml-auto">
+                    <Columns2 />
+                    <span className="hidden lg:block">Xem cột</span>
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                        >
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            {renderToolbarRight && renderToolbarRight(table)}
+          </div>
         </div>
-
-        <div className="ml-auto flex items-center gap-4">
-          {enableColumnVisibility && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  <Columns2 />
-                  <span className="hidden lg:block">Xem cột</span>
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                      >
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
-          {renderToolbarRight && renderToolbarRight(table)}
-        </div>
-      </div>
+      )}
 
       <div className="overflow-hidden rounded-md border">
         <Table className="min-w-5xl">
